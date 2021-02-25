@@ -3,12 +3,17 @@ import json
 from typing import Iterable, Mapping, List
 from . import file_utils
 import numpy as np
-from .analyzers import mean_var
 
-def analyze(files: Iterable[list]):
+
+
+
+
+def analyze(files: Iterable[list], analyzer):
     currentPageId = -1
     currentPageCounter = 0
     currentPageObjs = []
+
+    analyzer.init()
 
     i = 0
     for inputFile in files:
@@ -26,7 +31,7 @@ def analyze(files: Iterable[list]):
 
             # ON CHANGE PAGE
             if pageId != currentPageId:
-                mean_var.finalizePage(obj["pageTitle"], currentPageCounter, currentPageObjs)
+                analyzer.finalizePage(obj["pageTitle"], currentPageCounter, currentPageObjs)
                 currentPageId = pageId
                 currentPageCounter = 0
                 currentPageObjs = []
@@ -40,7 +45,7 @@ def analyze(files: Iterable[list]):
             
         print(f"Done Analyzing {inputFile}.")
     
-    mean_var.printResult()
+    analyzer.printResult()
     
 
 

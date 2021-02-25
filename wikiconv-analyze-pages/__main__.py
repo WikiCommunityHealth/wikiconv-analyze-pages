@@ -2,6 +2,7 @@ import argparse
 import pathlib
 
 from . import analyze
+import importlib
 
 def get_args():
     parser = argparse.ArgumentParser(
@@ -15,6 +16,12 @@ def get_args():
         nargs='+',
         help='Wikidump file to parse, can be compressed.',
     )
+    parser.add_argument(
+        '--analyzer',
+        type=str,
+        required=True,
+        help='Analyzer module name.'
+    )
 
     parsed_args = parser.parse_args()
     return parsed_args
@@ -24,7 +31,13 @@ def get_args():
 def main():
     args = get_args()
     files = args.files
-    analyze.analyze(files=files)
+
+    # from .analyzers import mean_var as analyzer
+    analyzer = importlib.import_module(f'.analyzers.{args.analyzer}', package='wikiconv-analyze-pages')
+    print(f"Using analyzer {args.analyzer}")
+    
+    analyze.analyze(files=files, analyzer=analyzer)
+
 
 if __name__ == '__main__':
     main()
