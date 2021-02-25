@@ -1,3 +1,4 @@
+import argparse
 import re
 import liwc
 import numpy as np
@@ -6,6 +7,25 @@ from typing import Iterable, Mapping, List
 
 liwcParser, category_names = liwc.load_token_parser('./LIWC2007_English080730.dic')
 pagesValues = {}
+
+
+minPageLines = 100
+
+def configureArgs():
+    global minPageLines
+
+    parser = argparse.ArgumentParser(
+        prog='mean_var',
+        description='Graph snapshot features extractor.',
+    )
+    parser.add_argument(
+        '--min-page-lines',
+        type=int,
+        required=True,
+        help='Analyzer module name.'
+    )
+    parsed_args, unknown = parser.parse_known_args()
+    minPageLines = parsed_args.min_page_lines
 
 def init():
     for cat in category_names:
@@ -23,7 +43,7 @@ def printResult():
                 print(f"{cat:12}\t{mean:.6f}\t{var:.7f}")
 
 def finalizePage(pageName: str, pageCounter : int, currentPageObjs: List[Mapping]):
-    if pageCounter >= 100:
+    if pageCounter >= minPageLines:
         analyzePage(pageName, currentPageObjs)
 
 def analyzePage(pageName: str, pageObjs: List[Mapping]):
