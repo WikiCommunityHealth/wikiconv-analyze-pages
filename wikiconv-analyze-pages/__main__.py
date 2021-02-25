@@ -11,17 +11,17 @@ def get_args():
         description='Graph snapshot features extractor.',
     )
     parser.add_argument(
-        'analyzer',
-        metavar='ANALYZER',
-        type=str,
-        help='Analyzer module name.',
-    )
-    parser.add_argument(
         'files',
         metavar='FILE',
         type=pathlib.Path,
         nargs='+',
         help='Wikidump file to parse, can be compressed.',
+    )
+    parser.add_argument(
+        'analyzer',
+        metavar='ANALYZER',
+        type=str,
+        help='Analyzer module name.',
     )
 
     parsed_args, unknown = parser.parse_known_args()

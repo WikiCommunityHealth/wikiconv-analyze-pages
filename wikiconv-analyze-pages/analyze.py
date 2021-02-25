@@ -15,41 +15,39 @@ def analyze(files: Iterable[list], analyzer):
 
     analyzer.init()
 
-    i = 0
     for inputFile in files:
+        i = 0
         print(f"Analyzing {inputFile}...")
 
         for line in file_utils.open_text_file(str(inputFile)):
+
+            i += 1
+            if i % 10000 == 0:
+                print(i)
+                break
             
             # GET LINE
             [pageId, timestamp, obj] = line.split("\t")
-            obj = json.loads(obj)
-
-            # FILTER LINE
-            if not filterLines(obj):
-                continue
+            pageId = int(pageId)
 
             # ON CHANGE PAGE
             if pageId != currentPageId:
-                analyzer.finalizePage(obj["pageTitle"], currentPageCounter, currentPageObjs)
+                analyzer.finalizePage(currentPageCounter, currentPageObjs, currentPageId)
                 currentPageId = pageId
                 currentPageCounter = 0
                 currentPageObjs = []
+
+
+            # FILTER LINE
+            if not analyzer.filterId(pageId):
+                continue
+            obj = json.loads(obj)
+            if not analyzer.filterObj(obj):
+                continue
             
             currentPageObjs.append(obj)
             currentPageCounter += 1
-
-            i += 1
-            if i % 100000 == 0:
-                print(i)
             
         print(f"Done Analyzing {inputFile}.")
     
     analyzer.printResult()
-    
-
-
-def filterLines(obj: Mapping) -> bool:
-    return obj["type"] != "DELETION" and obj["type"] != "MODIFICATION"
-
-

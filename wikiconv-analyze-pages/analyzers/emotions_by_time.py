@@ -1,45 +1,95 @@
+import argparse
 import re
 import liwc
+import datetime
 import numpy as np
 from collections import Counter
 from typing import Iterable, Mapping, List
+from .. import types
+import matplotlib.pyplot as plt
+
 
 liwcParser, category_names = liwc.load_token_parser('./LIWC2007_English080730.dic')
-pagesValues = {}
+monthsCounters = {}
+
+
+minPageLines = 100
+emotion = ""
+
+def configureArgs():
+    global minPageLines
+    global emotion
+
+    parser = argparse.ArgumentParser(
+        prog='mean_var',
+        description='Graph snapshot features extractor.',
+    )
+    parser.add_argument(
+        '--min-page-lines',
+        type=int,
+        required=False,
+        default=250,
+        help='Analyzer module name.'
+    )
+    parser.add_argument(
+        '--emotion', '-e',
+        type=str,
+        required=True,
+        help='Analyzer module name.'
+    )
+    parsed_args, unknown = parser.parse_known_args()
+
+    minPageLines = parsed_args.min_page_lines
+    emotion = parsed_args.emotion
+    if emotion not in category_names:
+        print(f"Emotion {emotion} not found")
+        exit(0)
 
 def init():
-    for cat in category_names:
-        pagesValues[cat] = []
-
+    for year in range(2000, 2022):
+        for month in range(1, 13):
+            monthsCounters[f"{year}-{str(month).zfill(2)}"] = [0, Counter()]
 
 def printResult():
-    with open("categories_mean_var.txt", "w") as f:
-        with open("categories_mean_var_human.txt", "w") as f_human:
-            for cat in category_names:
-                mean = np.mean(pagesValues[cat])
-                var = np.var(pagesValues[cat])
-                f.write(f"{cat}\t{mean}\t{var}\n")
-                f_human.write(f"{cat:12}\t{mean:.6f}\t{var:.6f}\n")
-                print(f"{cat:12}\t{mean:.6f}\t{var:.7f}")
+    heights = []
+    labels = []
 
-def finalizePage(pageName: str, pageCounter : int, currentPageObjs: List[Mapping]):
-    if pageCounter >= 100:
-        analyzePage(pageName, currentPageObjs)
+    for months in monthsCounters:
+        [tot, conter] = monthsCounters[months]
+        labels.append(months)
+        if tot != 0:
+            heights.append(conter[emotion] / tot)
+        else:
+            heights.append(0 if tot <= 0 else conter[emotion] / tot)
 
-def analyzePage(pageName: str, pageObjs: List[Mapping]):
-    pageCounter = Counter()
-    totalNumberOfWords = 0
-    for obj in pageObjs:
-        totalNumberOfWords += analyzeLine(obj["cleanedContent"], pageCounter)
-    
-    if totalNumberOfWords > 0:
-        for cat in category_names:
-            pagesValues[cat].append(pageCounter[cat] / totalNumberOfWords)
+    y_pos = range(len(labels))
+    f, ax = plt.subplots(figsize=(100,20)) # set the size that you'd like (width, height)
+    plt.bar(y_pos, heights)
+    plt.xticks(y_pos, labels, rotation=90)
+    plt.savefig(f'output/emotion-by-time-{emotion}.png')
 
-def analyzeLine(line: str, pageCounter: Counter) -> int:
-    words = list(tokenize(line))
-    pageCounter.update([category for w in words for category in liwcParser(w)])
-    return len(words)
+def finalizePage(pageCounter : int, currentPageObjs: List[Mapping], pageId):
+    if pageCounter > 0:
+        analyzePage(currentPageObjs, pageId)
+
+def filterId(pageId: int) -> bool:
+    return True
+    return pageId == 1197298
+
+def filterObj(obj: Mapping) -> bool:
+    return obj["type"] != "DELETION" and obj["type"] != "MODIFICATION" and obj["type"] != "RESTORATION"
+
+def analyzePage(pageObjs: List[Mapping], pageId):
+    for raw_obj in pageObjs:
+        obj = types.cast_json(raw_obj)
+        monthstr = obj["timestamp"].strftime("%Y-%m")
+
+        words = list(tokenize(obj["cleanedContent"]))
+        monthsCounters[monthstr][1].update([category for w in words for category in liwcParser(w)])
+        monthsCounters[monthstr][0] += len(words)
+
+    return
+
 
 def tokenize(text: str):
     for match in re.finditer(r'\w+', text, re.UNICODE):

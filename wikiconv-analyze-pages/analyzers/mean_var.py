@@ -31,10 +31,9 @@ def init():
     for cat in category_names:
         pagesValues[cat] = []
 
-
 def printResult():
-    with open("categories_mean_var.txt", "w") as f:
-        with open("categories_mean_var_human.txt", "w") as f_human:
+    with open("output/categories_mean_var.txt", "w") as f:
+        with open("output/categories_mean_var_human.txt", "w") as f_human:
             for cat in category_names:
                 mean = np.mean(pagesValues[cat])
                 var = np.var(pagesValues[cat])
@@ -42,11 +41,17 @@ def printResult():
                 f_human.write(f"{cat:12}\t{mean:.6f}\t{var:.6f}\n")
                 print(f"{cat:12}\t{mean:.6f}\t{var:.7f}")
 
-def finalizePage(pageName: str, pageCounter : int, currentPageObjs: List[Mapping]):
+def finalizePage(pageCounter : int, currentPageObjs: List[Mapping]):
     if pageCounter >= minPageLines:
-        analyzePage(pageName, currentPageObjs)
+        analyzePage(currentPageObjs)
 
-def analyzePage(pageName: str, pageObjs: List[Mapping]):
+def filterId(obj: Mapping) -> bool:
+    return True
+
+def filterObj(obj: Mapping) -> bool:
+    return obj["type"] != "DELETION" and obj["type"] != "MODIFICATION"
+
+def analyzePage(pageObjs: List[Mapping]):
     pageCounter = Counter()
     totalNumberOfWords = 0
     for obj in pageObjs:
