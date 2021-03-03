@@ -24,7 +24,6 @@ def analyze(files: Iterable[list], analyzer):
             i += 1
             if i % 10000 == 0:
                 print(i)
-                break
             
             # GET LINE
             [pageId, timestamp, obj] = line.split("\t")

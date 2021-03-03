@@ -68,6 +68,13 @@ def printResult():
     plt.xticks(y_pos, labels, rotation=90)
     plt.savefig(f'output/emotion-by-time-{emotion}.png')
 
+    for months in monthsCounters:
+        [tot, conter] = monthsCounters[months]
+        print(f"{months}\t{tot}\n")
+        for em in category_names:
+            print(f"{em}\t{conter[em]}\t{0 if tot <= 0 else conter[emotion] / tot}\n")
+            print("\n")
+
 def finalizePage(pageCounter : int, currentPageObjs: List[Mapping], pageId):
     if pageCounter > 0:
         analyzePage(currentPageObjs, pageId)
