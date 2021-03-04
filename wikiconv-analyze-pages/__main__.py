@@ -1,9 +1,6 @@
 import argparse
 import pathlib
-from typing import Any
-
 from . import analyze
-import importlib
 from .analyzers import getAnalyzer, getAnalyzersNames
 
 def get_args():
