@@ -1,8 +1,10 @@
 import argparse
 import pathlib
+from typing import Any
 
 from . import analyze
 import importlib
+from .analyzers import getAnalyzer, getAnalyzersNames
 
 def get_args():
 
@@ -19,12 +21,13 @@ def get_args():
     )
     parser.add_argument(
         'analyzer',
+        choices=getAnalyzersNames(),
         metavar='ANALYZER',
         type=str,
         help='Analyzer module name.',
     )
 
-    parsed_args, unknown = parser.parse_known_args()
+    parsed_args, _ = parser.parse_known_args()
 
 
     return parsed_args
@@ -35,7 +38,7 @@ def main():
     files = args.files
 
     # from .analyzers import mean_var as analyzer
-    analyzer = importlib.import_module(f'.analyzers.{args.analyzer}', package='wikiconv-analyze-pages')
+    analyzer = getAnalyzer(args.analyzer)
     analyzer.configureArgs()
     print(f"Using analyzer {args.analyzer}")
 

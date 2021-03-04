@@ -4,7 +4,7 @@ Extract snapshots from list of revisions.
 The output format is csv.
 """
 
-from typing import Mapping
+from typing import Any, Mapping
 from datetime import datetime
 
 
@@ -67,7 +67,7 @@ from datetime import datetime
 #     score.identityAttack: float
 #     pageNamespace: int
 
-def __parse_user(userdct: Mapping) -> Mapping:
+def __parse_user(userdct: Mapping[str, Any]) -> Mapping[str, Any]:
     if "id" in userdct:
         return {"id": int(userdct["id"]),
                 "text": userdct["text"]
@@ -76,7 +76,7 @@ def __parse_user(userdct: Mapping) -> Mapping:
         return userdct
 
 
-def __parse_author(authordct: Mapping) -> Mapping:
+def __parse_author(authordct: Mapping[str, Any]) -> Mapping[str, Any]:
     if "id" in authordct:
         return {"id": int(authordct["id"]),
                 "text": authordct["text"]}
@@ -84,7 +84,7 @@ def __parse_author(authordct: Mapping) -> Mapping:
         return authordct
 
 
-def cast_json(dct: Mapping) -> Mapping:
+def cast_json(dct: Mapping[str, Any]) -> Mapping[str, Any]:
     res = { "id": dct["id"],
             "revId": int(dct["revId"]),
             "type": dct["type"],

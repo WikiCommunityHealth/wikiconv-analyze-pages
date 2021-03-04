@@ -11,7 +11,7 @@ from typing import IO, Optional, Union
 import compressed_stream as cs
 
 
-def open_csv_file(path: Union[str, IO]):
+def open_csv_file(path: Union[str, IO[bytes]]):
     """Open a csv file, decompressing it if necessary."""
     f = cs.functions.open_file(
         cs.functions.file(path)
@@ -19,7 +19,7 @@ def open_csv_file(path: Union[str, IO]):
     return f
 
 
-def open_jsonobjects_file(path: Union[str, IO]):
+def open_jsonobjects_file(path: Union[str, IO[bytes]]):
     """Open a file of JSON object, one per line,
         decompressing it if necessary."""
     f = cs.functions.open_file(
@@ -28,7 +28,7 @@ def open_jsonobjects_file(path: Union[str, IO]):
 
     return (json.loads(line) for line in f)
 
-def open_text_file(path: Union[str, IO]):
+def open_text_file(path: Union[str, IO[bytes]]):
     """Open a file, decompressing it if necessary."""
     f = cs.functions.open_file(
         cs.functions.file(path)
