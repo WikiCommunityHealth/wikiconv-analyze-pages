@@ -57,7 +57,7 @@ class ReplyToAnalyzer(Analyzer):
             #     username = 'unknown'
 
             curr_id = record['id']
-            users[curr_id] = record['user']
+            users[curr_id] = None if 'user' not in record else record['user']
             # current_month_year = f"{record['timestamp'].month}/{record['timestamp'].year}"
             reply_to = record['replytoId'] if 'replytoId' in record else None
             parent_id = record['parentId'] if 'parentId' in record else None
