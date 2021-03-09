@@ -41,6 +41,7 @@ class ReplyToAnalyzer(Analyzer):
     def finalizeSection(self, sectionCounter: int, currentSectionObjs: List[Mapping[str, Any]], currentSectionId: int) -> None:
         root_node = 'root'
         G = DiscussionGraph()
+        users = {}
 
         for record in currentSectionObjs:
 
@@ -56,6 +57,7 @@ class ReplyToAnalyzer(Analyzer):
             #     username = 'unknown'
 
             curr_id = record['id']
+            users[curr_id] = record['user']
             # current_month_year = f"{record['timestamp'].month}/{record['timestamp'].year}"
             reply_to = record['replytoId'] if 'replytoId' in record else None
             parent_id = record['parentId'] if 'parentId' in record else None
@@ -127,7 +129,8 @@ class ReplyToAnalyzer(Analyzer):
                     G.add_edge(curr_id, root_node)
 
         for record in currentSectionObjs:
-            record['replyTo'] = G.get_parent(record['id'])
+            parentId = G.get_parent(record['id'])
+            record['replyTo'] = 'unknown' if parentId is None else users[parentId]
             self.__file.write(f"{json.dumps(record)}\n")
 
     def fileEnd(self) -> None:
