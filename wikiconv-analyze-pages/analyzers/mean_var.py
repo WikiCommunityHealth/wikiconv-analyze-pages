@@ -11,12 +11,13 @@ class MeanVarAnalyzer(Analyzer):
     __minPageLines = 100
 
     __liwcParser: Callable[[Any], Generator[Any, None, None]]
-    __categoryNames: 'list[str]'
+    __categoryNames: List[str]
     __pagesValues: Mapping[str, List[float]]
     __minPageLines: int = 0
 
     def __init__(self):
         self.__liwcParser, self.__categoryNames = liwc.load_token_parser('./LIWC2007_English080730.dic')
+        self.__categoryNames = cast(List[str], self.__categoryNames)
         self.__pagesValues = {}
 
         for cat in self.__categoryNames:

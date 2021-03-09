@@ -1,14 +1,14 @@
 
 import json
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, List, Mapping
 from . import file_utils
 from .analyzers import Analyzer
 
-def analyze(files: 'list[Path]', analyzer: Analyzer):
+def analyze(files: List[Path], analyzer: Analyzer):
     currentSectionId = -1
     currentSectionCounter = 0
-    currentSectionObjs: 'list[Mapping[str, Any]]' = []
+    currentSectionObjs: List[Mapping[str, Any]] = []
 
     for inputFile in files:
         print(f"Analyzing {inputFile}...")
@@ -36,7 +36,7 @@ def analyze(files: 'list[Path]', analyzer: Analyzer):
             
             currentSectionObjs.append(obj)
             currentSectionCounter += 1
-            
+
         print(f"Done Analyzing {inputFile}.")
     
     analyzer.printResult()

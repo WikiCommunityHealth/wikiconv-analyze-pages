@@ -4,8 +4,7 @@ from .analyzer import Analyzer
 
 def __getAnalyzers() -> Mapping[str, Callable[[], Analyzer]]:
     return {
-        "mean-var": lambda : MeanVarAnalyzer(),
-        "pippo": lambda : Analyzer()
+        "mean-var": lambda : MeanVarAnalyzer()
     }
 
 def getAnalyzersNames() -> List[str]:

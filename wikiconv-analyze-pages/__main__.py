@@ -25,8 +25,6 @@ def get_args():
     )
 
     parsed_args, _ = parser.parse_known_args()
-
-
     return parsed_args
 
 
