@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any, List, Mapping
 from abc import ABC, abstractmethod
 class Analyzer(ABC):
@@ -6,27 +7,25 @@ class Analyzer(ABC):
     def __init__(self):
         pass
 
-    @abstractmethod
     def configureArgs(self):
-        pass
+        return
 
-    @abstractmethod
     def filterId(self, sectionId: int) -> bool:
-        pass
+        return True
 
-    @abstractmethod
     def filterObj(self, obj: Mapping[str, Any]) -> bool:
-        pass
+        return True
 
-    @abstractmethod
     def finalizeSection(
         self,
         sectionCounter: int,
         currentSectionObjs: List[Mapping[str, Any]],
         currentSectionId: int
         ) -> None:
-        pass
+        return
 
-    @abstractmethod
     def printResult(self) -> None:
-        pass
+        return
+
+    def fileEnd(self) -> None:
+        return

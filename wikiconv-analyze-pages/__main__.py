@@ -34,7 +34,6 @@ def main():
 
     # from .analyzers import mean_var as analyzer
     analyzer = getAnalyzer(args.analyzer)
-    analyzer.configureArgs()
     print(f"Using analyzer {args.analyzer}")
 
     analyze.analyze(files=files, analyzer=analyzer)

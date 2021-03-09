@@ -1,10 +1,12 @@
 from typing import Callable, List, Mapping
 from .mean_var import MeanVarAnalyzer
+from .reply_to import ReplyToAnalyzer
 from .analyzer import Analyzer
 
 def __getAnalyzers() -> Mapping[str, Callable[[], Analyzer]]:
     return {
-        "mean-var": lambda : MeanVarAnalyzer()
+        "mean-var": lambda : MeanVarAnalyzer(),
+        "reply-to": lambda : ReplyToAnalyzer()
     }
 
 def getAnalyzersNames() -> List[str]:

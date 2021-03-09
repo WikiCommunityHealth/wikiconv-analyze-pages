@@ -1,4 +1,3 @@
-
 import json
 from pathlib import Path
 from typing import Any, List, Mapping
@@ -14,7 +13,6 @@ def analyze(files: List[Path], analyzer: Analyzer):
         print(f"Analyzing {inputFile}...")
 
         for line in file_utils.open_text_file(str(inputFile)):
-
             # GET LINE
             [sortingFields, obj] = line.split("\t")
             sectionId = int(sortingFields.split(' ')[0])
@@ -37,6 +35,7 @@ def analyze(files: List[Path], analyzer: Analyzer):
             currentSectionObjs.append(obj)
             currentSectionCounter += 1
 
+        analyzer.fileEnd()
         print(f"Done Analyzing {inputFile}.")
     
     analyzer.printResult()
