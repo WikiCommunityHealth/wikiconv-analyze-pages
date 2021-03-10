@@ -130,7 +130,7 @@ class ReplyToAnalyzer(Analyzer):
 
         for record in currentSectionObjs:
             parentId = G.get_parent(record['id'])
-            record['replyTo'] = 'unknown' if parentId is None else users[parentId]
+            record['replyToUser'] = 'unknown' if parentId is None else users[parentId]
             self.__file.write(f"{json.dumps(record)}\n")
 
     def fileEnd(self) -> None:
