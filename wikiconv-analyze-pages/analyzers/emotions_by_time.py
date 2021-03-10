@@ -50,7 +50,7 @@ def init():
         for month in range(1, 13):
             monthsCounters[f"{year}-{str(month).zfill(2)}"] = [0, Counter()]
 
-def printResult():
+def finalize():
     heights = []
     labels = []
 

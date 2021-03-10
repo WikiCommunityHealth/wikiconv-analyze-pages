@@ -11,11 +11,14 @@ def analyze(files: List[Path], analyzer: Analyzer):
 
     for inputFile in files:
         print(f"Analyzing {inputFile}...")
+        analyzer.fileStart()
 
         for line in file_utils.open_text_file(str(inputFile)):
             # GET LINE
             [sortingFields, obj] = line.split("\t")
             sectionId = int(sortingFields.split(' ')[0])
+            # obj = line
+            # sectionId = 1
 
             # ON CHANGE PAGE
             if sectionId != currentSectionId:
@@ -35,7 +38,7 @@ def analyze(files: List[Path], analyzer: Analyzer):
             currentSectionObjs.append(obj)
             currentSectionCounter += 1
 
-        analyzer.fileEnd()
+        analyzer.finalizeSection(currentSectionCounter, currentSectionObjs, currentSectionId)
         print(f"Done Analyzing {inputFile}.")
     
-    analyzer.printResult()
+    analyzer.finalize()

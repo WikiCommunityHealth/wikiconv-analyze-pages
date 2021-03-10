@@ -68,7 +68,7 @@ class MeanVarAnalyzer(Analyzer):
             yield match.group(0)
 
 
-    def printResult(self):
+    def finalize(self):
         with open("output/categories_mean_var.txt", "w") as f:
             with open("output/categories_mean_var_human.txt", "w") as f_human:
                 for cat in self.__categoryNames:

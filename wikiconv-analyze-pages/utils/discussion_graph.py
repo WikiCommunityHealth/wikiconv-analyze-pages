@@ -57,7 +57,7 @@ class DiscussionGraph:
         return self.G
 
     def get_parent(self, node_label: str) -> Optional[str]:
-        return next(self.G.predecessors(node_label), None)
+        return next(iter(self.G[node_label]), None)
     
     def get_color_list(self):
         return [attributes['color'] for node, attributes in self.G.nodes.data()]

@@ -24,8 +24,8 @@ class Analyzer(ABC):
         ) -> None:
         return
 
-    def printResult(self) -> None:
+    def finalize(self) -> None:
         return
 
-    def fileEnd(self) -> None:
+    def fileStart(self) -> None:
         return

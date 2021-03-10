@@ -17,11 +17,10 @@ class ReplyToAnalyzer(Analyzer):
     __file = None
     __outputPath = None
     __outputCounter = 0
+    __compression = None
 
     def __init__(self):
         self.configureArgs()
-        self.fileEnd()
-        return
 
     def configureArgs(self):
         parser = argparse.ArgumentParser(
@@ -35,8 +34,17 @@ class ReplyToAnalyzer(Analyzer):
             required=True,
             help='XML output directory.',
         )
+        parser.add_argument(
+            '--output-compression',
+            choices={None, '7z', 'bz2', 'gz'},
+            required=False,
+            default=None,
+            help='Output compression format [default: no compression].',
+        )
         parsed_args, unknown = parser.parse_known_args()
         self.__outputPath = parsed_args.output_dir_path
+        self.__compression = parsed_args.output_compression
+        print(self.__compression)
 
     def finalizeSection(self, sectionCounter: int, currentSectionObjs: List[Mapping[str, Any]], currentSectionId: int) -> None:
         root_node = 'root'
@@ -130,12 +138,23 @@ class ReplyToAnalyzer(Analyzer):
 
         for record in currentSectionObjs:
             parentId = G.get_parent(record['id'])
-            record['replyToUser'] = 'unknown' if parentId is None else users[parentId]
+            replyToValue = None
+            if parentId == 'root':
+                replyToValue = parentId
+            elif parentId not in users:
+                replyToValue = 'unknown'
+            else:
+                replyToValue = users[parentId]
+            record['replyToUser'] = replyToValue
             self.__file.write(f"{json.dumps(record)}\n")
 
-    def fileEnd(self) -> None:
+    def fileStart(self) -> None:
         if self.__file is not None:
             self.__file.close()
         newFilename = str(self.__outputPath / (f"reply-to-{str(self.__outputCounter).zfill(4)}.json"))
-        self.__file = file_utils.output_writer(path=newFilename, compression=None)
+        self.__file = file_utils.output_writer(path=newFilename, compression=self.__compression)
         self.__outputCounter += 1
+
+    def finalize(self) -> None:
+        if self.__file is not None:
+            self.__file.close()
