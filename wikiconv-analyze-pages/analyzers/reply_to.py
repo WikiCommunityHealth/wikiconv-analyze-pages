@@ -148,7 +148,7 @@ class ReplyToAnalyzer(Analyzer):
             record['replyToUser'] = replyToValue
             self.__file.write(f"{json.dumps(record)}\n")
 
-    def fileStart(self) -> None:
+    def fileStart(self, number) -> None:
         if self.__file is not None:
             self.__file.close()
         newFilename = str(self.__outputPath / (f"reply-to-{str(self.__outputCounter).zfill(4)}.json"))
