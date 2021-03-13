@@ -1,5 +1,6 @@
 import json
 import argparse
+from ..utils.timestamp import printTimestamp
 from pathlib import Path
 from typing import Any, List, Mapping
 from .analyzer import Analyzer
@@ -41,10 +42,9 @@ class ReplyToAnalyzer(Analyzer):
             default=None,
             help='Output compression format [default: no compression].',
         )
-        parsed_args, unknown = parser.parse_known_args()
+        parsed_args, _ = parser.parse_known_args()
         self.__outputPath = parsed_args.output_dir_path
         self.__compression = parsed_args.output_compression
-        print(self.__compression)
 
     def finalizeSection(self, sectionCounter: int, currentSectionObjs: List[Mapping[str, Any]], currentSectionId: int) -> None:
         root_node = 'root'
@@ -148,10 +148,10 @@ class ReplyToAnalyzer(Analyzer):
             record['replyToUser'] = replyToValue
             self.__file.write(f"{json.dumps(record)}\n")
 
-    def fileStart(self, number) -> None:
+    def fileStart(self, number: int) -> None:
         if self.__file is not None:
             self.__file.close()
-        newFilename = str(self.__outputPath / (f"reply-to-{str(self.__outputCounter).zfill(4)}.json"))
+        newFilename = str(self.__outputPath / (f"reply-to-{str(number).zfill(4)}.json"))
         self.__file = file_utils.output_writer(path=newFilename, compression=self.__compression)
         self.__outputCounter += 1
 

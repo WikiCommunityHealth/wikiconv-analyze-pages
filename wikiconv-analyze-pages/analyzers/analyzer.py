@@ -27,5 +27,5 @@ class Analyzer(ABC):
     def finalize(self) -> None:
         return
 
-    def fileStart(self) -> None:
+    def fileStart(self, number: int) -> None:
         return

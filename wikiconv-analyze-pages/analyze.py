@@ -1,30 +1,36 @@
 import json
 from pathlib import Path
-from typing import Any, List, Mapping
+from .utils.timestamp import printTimestamp
+from typing import Any, List, Mapping, Tuple
 from . import file_utils
 from .analyzers import Analyzer
 import concurrent.futures
 from .analyzers import getAnalyzer
 
 def analyze(files: List[Path], analyzerName: str, parallel = False, max_workers=4):
+    printTimestamp(Path('.'), "Starting all")
 
+    filesAndIndex = enumerate(files)
     if parallel:
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-            executor.map(lambda f: analyzeFileListSync([f], analyzerName), files)
+            executor.map(lambda f: analyzeFileListSync([f], analyzerName), filesAndIndex)
     else:
-        analyzeFileListSync(files, analyzerName)
+        analyzeFileListSync(filesAndIndex, analyzerName)
 
-def analyzeFileListSync(files: List[Path], analyzerName: str):
+    printTimestamp(Path('.'), "All done")
+
+def analyzeFileListSync(filesAndIndex, analyzerName: str):
     analyzer = getAnalyzer(analyzerName)
-    for inputFile in files:
-        analyzeFile(inputFile, analyzer)
+    for i, inputFile in filesAndIndex:
+        printTimestamp(Path('.'), f"Starting {inputFile}")
+        analyzeFile(inputFile, i, analyzer)
+        printTimestamp(Path('.'), f"Completed {inputFile}")
     analyzer.finalize()
 
-def analyzeFile(inputFile: Path, analyzer: Analyzer):
-    print(f"Analyzing {inputFile}...")
+def analyzeFile(inputFile: Path, index: int, analyzer: Analyzer):
+    print(f"{index}: Analyzing {inputFile}...")
 
-    analyzer.fileStart()
-
+    analyzer.fileStart(index)
     currentSectionId = -1
     currentSectionCounter = 0
     currentSectionObjs: List[Mapping[str, Any]] = []
@@ -43,7 +49,6 @@ def analyzeFile(inputFile: Path, analyzer: Analyzer):
             currentSectionId = sectionId
             currentSectionCounter = 0
             currentSectionObjs = []
-
 
         # FILTER LINE
         if not analyzer.filterId(sectionId):

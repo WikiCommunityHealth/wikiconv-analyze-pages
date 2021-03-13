@@ -49,6 +49,6 @@ def main():
     print(f"Using analyzer {analyzerName}")
     analyze.analyze(files=files, analyzerName=analyzerName, parallel=parallel, max_workers=max_workers)
 
-# python -m wikiconv-analyze-pages doiop.json reply-to --output_dir_path . --output-compression gz
+# python -m wikiconv-analyze-pages reply-to /mnt/d --output_dir_path . --output-compression gz --parallel --max-workers 5
 if __name__ == '__main__':
     main()
