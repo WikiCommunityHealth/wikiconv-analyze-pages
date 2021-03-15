@@ -3,6 +3,14 @@ from typing import Any, List, Mapping
 from abc import ABC, abstractmethod
 class Analyzer(ABC):
 
+    @staticmethod
+    def inizialize():
+        pass
+
+    @staticmethod
+    def finalizeAll():
+        pass
+
     @abstractmethod
     def __init__(self):
         pass

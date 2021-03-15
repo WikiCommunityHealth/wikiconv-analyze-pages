@@ -1,12 +1,14 @@
-from typing import Callable, List, Mapping
+from typing import Callable, Dict, List, Mapping, Type
 from .mean_var import MeanVarAnalyzer
 from .reply_to import ReplyToAnalyzer
+from .emotion_lexicon import EmotionLexiconAnalyzer
 from .analyzer import Analyzer
 
-def __getAnalyzers() -> Mapping[str, Callable[[], Analyzer]]:
+def __getAnalyzers() -> Dict[str, Type[Analyzer]]:
     return {
-        "mean-var": lambda : MeanVarAnalyzer(),
-        "reply-to": lambda : ReplyToAnalyzer()
+        "mean-var": MeanVarAnalyzer,
+        "reply-to": ReplyToAnalyzer,
+        "emotion-lexicon": EmotionLexiconAnalyzer
     }
 
 def getAnalyzersNames() -> List[str]:
@@ -14,3 +16,6 @@ def getAnalyzersNames() -> List[str]:
 
 def getAnalyzer(name: str) -> Analyzer:
     return __getAnalyzers()[name]()
+    
+def getAnalyzerClass(name: str) -> Type[Analyzer]:
+    return __getAnalyzers()[name]
