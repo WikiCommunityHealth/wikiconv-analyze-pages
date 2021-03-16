@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Iterable, TextIO, Union
 from .. import file_utils
 
-SEPARATOR = ','
+SEPARATOR = '\t'
 SECONDARY_SEPARATOR = '|'
 
 def writeline(file: Union[TextIOWrapper, TextIO, None], values: Iterable[str]):
