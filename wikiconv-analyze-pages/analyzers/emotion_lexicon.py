@@ -80,7 +80,8 @@ class EmotionLexiconAnalyzer(Analyzer):
         c = Counter()
         for obj in currentSectionObjs:
             if obj['type'] == 'ADDITION' or obj['type'] == 'CREATION':
-                c.update(countEmotionsOfText(obj['cleanedContent']))
+                countEmotionsOfText(obj['cleanedContent'], c)
+                # c.update(countEmotionsOfText(obj['cleanedContent']))
                 lineAnalyzed += 1
 
         line = currentSectionObjs[0]["pageTitle"]

@@ -1,6 +1,6 @@
 import re
 from enum import Enum
-from typing import Counter, Iterator
+from typing import Counter, Dict, Iterator, List
 
 class Emotions(Enum):
     ANGER = 1 << 0
@@ -17,8 +17,20 @@ class Emotions(Enum):
     def __int__(self):
         return self.value
 
+emotionOrder = [
+    Emotions.ANGER,
+    Emotions.ANTICIPATION,
+    Emotions.DISGUST,
+    Emotions.FEAR,
+    Emotions.JOY,
+    Emotions.NEGATIVE,
+    Emotions.POSITIVE,
+    Emotions.SADNESS,
+    Emotions.SURPRISE,
+    Emotions.TRUST
+]
 path = './assets/NRC-Emotion-Lexicon-Wordlevel-v0.92.txt'
-dic = {}
+dic: Dict[str, List[Emotions]] = {}
 
 def getEmotionName(emotion: Emotions) -> str:
     if emotion == Emotions.ANGER:
@@ -51,10 +63,16 @@ def init():
         for i in range(0, len(lines), 10):
             wordLine = [l for l in lines[i:i + 10]]
             term = wordLine[0].split('\t')[0]
-            bitmap = 1 << 10
+            emotions = [Emotions.ANY]
             for j in range(10):
-                bitmap += int(wordLine[j].split('\t')[2][0]) << j
-            dic[term] = bitmap
+                if int(wordLine[j].split('\t')[2][0]) == 1:
+                    emotions.append(emotionOrder[j])
+            dic[term] = emotions
+
+            # bitmap = 1 << 10
+            # for j in range(10):
+            #     bitmap += int(wordLine[j].split('\t')[2][0]) << j
+            # dic[term] = bitmap
 
 def tokenize(text: str) -> Iterator[str]:
     for match in re.finditer(r'\w+', text, re.UNICODE):
@@ -62,22 +80,23 @@ def tokenize(text: str) -> Iterator[str]:
 
 def isWordOfEmotion(word: str, emotion: Emotions) -> bool:
     if word in dic:
-        return (dic[word] & emotion.value) != 0
+        return emotion in dic[word]
+        #return (dic[word] & emotion.value) != 0
     return False
 
-def getEmotionsOfWord(word: str) -> Iterator[Emotions]:
+def getEmotionsOfWord(word: str) -> List[Emotions]:
     if word not in dic:
         return []
-    d = dic[word]
-    for e in Emotions:
-        if d & e.value != 0:
-            yield e
+    return dic[word]
+    # d = dic[word]
+    # for e in Emotions:
+    #     if d & e.value != 0:
+    #         yield e
 
-def countEmotionsOfWords(words: Iterator[str]) -> Counter[Emotions]:
-    c = Counter()
+def countEmotionsOfWords(words: Iterator[str], c: Counter[Emotions] = Counter()) -> Counter[Emotions]:
     for w in words:
         c.update(getEmotionsOfWord(w))
     return c
 
-def countEmotionsOfText(text: str) -> Counter[Emotions]:
-    return countEmotionsOfWords(tokenize(text))
+def countEmotionsOfText(text: str, c: Counter[Emotions] = Counter()) -> Counter[Emotions]:
+    return countEmotionsOfWords(tokenize(text), c)
