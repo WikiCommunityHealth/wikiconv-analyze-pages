@@ -2,7 +2,7 @@ from collections import Counter
 import argparse
 import glob
 from pathlib import Path
-from typing import Any, List, Mapping
+from typing import Any, Dict, List
 from .analyzer import Analyzer
 from .. import file_utils
 from ..utils.emotion_lexicon import init, countEmotionsOfText, Emotions, getEmotionName
@@ -56,7 +56,7 @@ class EmotionLexiconAnalyzer(Analyzer):
         newFilename = str(EmotionLexiconAnalyzer.outputPath / ("page-emotion-lexicon.csv"))
         outFile = file_utils.output_writer(path=newFilename, compression=EmotionLexiconAnalyzer.compression)
 
-        header = "Page name"
+        header = "Page name,Total wikiconv lines, wikiconv lines analyzed"
         for e in EmotionLexiconAnalyzer.emotionPrintOrder:
             header += f",{getEmotionName(e)}"
         outFile.write(f"{header}\n")
@@ -72,15 +72,19 @@ class EmotionLexiconAnalyzer(Analyzer):
     def __init__(self):
         pass
 
-    def finalizeSection(self, sectionCounter: int, currentSectionObjs: List[Mapping[str, Any]], currentSectionId: int) -> None:
+    def finalizeSection(self, sectionCounter: int, currentSectionObjs: List[Dict[str, Any]], currentSectionId: int) -> None:
         if sectionCounter <= 0:
             return
 
+        lineAnalyzed = 0
         c = Counter()
         for obj in currentSectionObjs:
-            c.update(countEmotionsOfText(obj['cleanedContent']))
+            if obj['type'] == 'ADDITION' or obj['type'] == 'CREATION':
+                c.update(countEmotionsOfText(obj['cleanedContent']))
+                lineAnalyzed += 1
 
         line = currentSectionObjs[0]["pageTitle"]
+        line += f",{len(currentSectionObjs)},{lineAnalyzed}"
         for e in EmotionLexiconAnalyzer.emotionPrintOrder:
             line += f",{c.get(e, 0)}"
 
