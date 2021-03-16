@@ -17,20 +17,8 @@ class Emotions(Enum):
     def __int__(self):
         return self.value
 
-emotionOrder = [
-    Emotions.ANGER,
-    Emotions.ANTICIPATION,
-    Emotions.DISGUST,
-    Emotions.FEAR,
-    Emotions.JOY,
-    Emotions.NEGATIVE,
-    Emotions.POSITIVE,
-    Emotions.SADNESS,
-    Emotions.SURPRISE,
-    Emotions.TRUST
-]
-path = './assets/NRC-Emotion-Lexicon-Wordlevel-v0.92.txt'
 dic: Dict[str, List[Emotions]] = {}
+
 
 def getEmotionName(emotion: Emotions) -> str:
     if emotion == Emotions.ANGER:
@@ -57,22 +45,60 @@ def getEmotionName(emotion: Emotions) -> str:
         return "analized words"
     return "unknown"
 
-def init():
+def initEmotionLexicon(lang = 'en'):
+    # # English
+    # emotionOrder = [
+    #     Emotions.ANGER, Emotions.ANTICIPATION, Emotions.DISGUST, Emotions.FEAR, Emotions.JOY,
+    #     Emotions.NEGATIVE, Emotions.POSITIVE,Emotions.SADNESS, Emotions.SURPRISE, Emotions.TRUST
+    # ]
+    # path = './assets/NRC-Emotion-Lexicon-Wordlevel-v0.92.txt'
+    # with open(path) as file:
+    #     lines = [l for l in file]
+    #     for i in range(0, len(lines), 10):
+    #         wordLine = [l for l in lines[i:i + 10]]
+    #         term = wordLine[0].split('\t')[0]
+    #         emotions = [Emotions.ANY]
+    #         for j in range(10):
+    #             if int(wordLine[j].split('\t')[2][0]) == 1:
+    #                 emotions.append(emotionOrder[j])
+    #         dic[term] = emotions
+    #         # bitmap = 1 << 10
+    #         # for j in range(10):
+    #         #     bitmap += int(wordLine[j].split('\t')[2][0]) << j
+    #         # dic[term] = bitmap
+
+
+    # Other languages
+    emotionOrder = [
+        Emotions.POSITIVE, Emotions.NEGATIVE, Emotions.ANGER, Emotions.ANTICIPATION, Emotions.DISGUST,
+        Emotions.FEAR, Emotions.JOY, Emotions.SADNESS, Emotions.SURPRISE, Emotions.TRUST
+    ]
+    path = './assets/NRC-Emotion-Lexicon-v0.92-In105Languages-Nov2017Translations.csv'
     with open(path) as file:
         lines = [l for l in file]
-        for i in range(0, len(lines), 10):
-            wordLine = [l for l in lines[i:i + 10]]
-            term = wordLine[0].split('\t')[0]
+        # find header column
+        header = lines[0].strip('\n').split(',')[:-10]
+        langCol = -1
+        for i, langHeader in enumerate(header):
+            if langHeader.split('(')[1].split(')')[0] == lang:
+                langCol = i
+                break
+        try:
+            if langCol < 0:
+                raise Exception('Lang not found') 
+        except Exception as ex:
+            print(ex)
+            exit(1)
+
+        for l in lines[1:]:
+            d = l.strip('\n').split(',')
+            term = d[langCol]
             emotions = [Emotions.ANY]
-            for j in range(10):
-                if int(wordLine[j].split('\t')[2][0]) == 1:
-                    emotions.append(emotionOrder[j])
+            for i, x in enumerate(d[-10:]):
+                if x == "1":
+                    emotions.append(emotionOrder[i])
             dic[term] = emotions
 
-            # bitmap = 1 << 10
-            # for j in range(10):
-            #     bitmap += int(wordLine[j].split('\t')[2][0]) << j
-            # dic[term] = bitmap
 
 def tokenize(text: str) -> Iterator[str]:
     for match in re.finditer(r'\w+', text, re.UNICODE):

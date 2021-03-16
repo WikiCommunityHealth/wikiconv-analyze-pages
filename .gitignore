@@ -129,5 +129,5 @@ dmypy.json
 .pyre/
 
 LIWC*
-assets/NRC-Emotion-Lexicon-Wordlevel-v0.92.txt
+assets/NRC*
 times*.txt

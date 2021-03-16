@@ -5,12 +5,13 @@ from pathlib import Path
 from typing import Any, Dict, List
 from .analyzer import Analyzer
 from .. import file_utils
-from ..utils.emotion_lexicon import init, countEmotionsOfText, Emotions, getEmotionName
+from ..utils.emotion_lexicon import initEmotionLexicon, countEmotionsOfText, Emotions, getEmotionName
 
 class EmotionLexiconAnalyzer(Analyzer):
     __file = None
     outputPath: Path = Path()
     compression = None
+    lang = 'en'
 
     emotionPrintOrder = [
         Emotions.ANY, Emotions.NEGATIVE, Emotions.POSITIVE,
@@ -23,7 +24,8 @@ class EmotionLexiconAnalyzer(Analyzer):
     @staticmethod
     def inizialize():
         EmotionLexiconAnalyzer.configureArgs()
-        init()
+        print(EmotionLexiconAnalyzer.lang)
+        initEmotionLexicon(EmotionLexiconAnalyzer.lang)
 
     @staticmethod
     def configureArgs():
@@ -39,6 +41,13 @@ class EmotionLexiconAnalyzer(Analyzer):
             help='XML output directory.',
         )
         parser.add_argument(
+            '--lang',
+            type=str,
+            required=False,
+            default='en',
+            help='Language.',
+        )
+        parser.add_argument(
             '--output-compression',
             choices={None, '7z', 'bz2', 'gz'},
             required=False,
@@ -48,6 +57,7 @@ class EmotionLexiconAnalyzer(Analyzer):
         parsed_args, _ = parser.parse_known_args()
         EmotionLexiconAnalyzer.outputPath = parsed_args.output_dir_path
         EmotionLexiconAnalyzer.compression = parsed_args.output_compression
+        EmotionLexiconAnalyzer.lang = parsed_args.lang
 
     @staticmethod
     def finalizeAll():
