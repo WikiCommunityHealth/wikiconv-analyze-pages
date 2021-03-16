@@ -29,9 +29,10 @@ def writelineMultiValueStr(file: Union[TextIOWrapper, TextIO, None], multiValues
 def writeHeaders(file: Union[TextIOWrapper, TextIO, None], headers: Iterable[str]):
     writeline(file, headers)
 
-def joinCSVs(filesPattern: str, headers: Iterable[str], outputFile: str, compression = None):
+def joinCSVs(filesPattern: str, headers: Iterable[str], outputFile: Path, compression = None):
     files = glob(filesPattern)
-    outFile = file_utils.output_writer(path=outputFile, compression=compression)
+    file_utils.create_path(outputFile)  
+    outFile = file_utils.output_writer(path=str(outputFile), compression=compression)
 
     writeHeaders(outFile, headers)
     for f in files:

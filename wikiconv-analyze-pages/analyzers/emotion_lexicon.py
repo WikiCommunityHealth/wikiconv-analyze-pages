@@ -36,6 +36,7 @@ class EmotionLexiconAnalyzer(Analyzer):
         # EmotionLexiconAnalyzer.year_month_cosi = [f"{str(y).zfill(4)}" for y in range(2000, 2021)]
 
 
+
     @staticmethod
     def configureArgs():
         parser = argparse.ArgumentParser(
@@ -70,31 +71,30 @@ class EmotionLexiconAnalyzer(Analyzer):
 
     @staticmethod
     def finalizeAll():
-        file_utils.create_path(EmotionLexiconAnalyzer.outputPath / "results")
 
         csv_writer.joinCSVs(
-            filesPattern=str(EmotionLexiconAnalyzer.outputPath / "page-emotion-lexicon-global-int*.csv"),
+            filesPattern=str(EmotionLexiconAnalyzer.outputPath / "global/page-emotion-lexicon-global-int*.tsv"),
             headers=["Page name", "Months"] + [getEmotionName(e) for e in EmotionLexiconAnalyzer.emotionPrintOrder],
-            outputFile=str(EmotionLexiconAnalyzer.outputPath / f"results/page-emotion-lexicon-{EmotionLexiconAnalyzer.lang}-global-int.csv"),
+            outputFile=EmotionLexiconAnalyzer.outputPath / f"_results/page-emotion-lexicon-{EmotionLexiconAnalyzer.lang}-global-int.tsv",
             compression=EmotionLexiconAnalyzer.compression
         )
         csv_writer.joinCSVs(
-            filesPattern=str(EmotionLexiconAnalyzer.outputPath / "page-emotion-lexicon-global-float-*.csv"),
+            filesPattern=str(EmotionLexiconAnalyzer.outputPath / "global/page-emotion-lexicon-global-float-*.tsv"),
             headers=["Page name", "Months"] + [getEmotionName(e) for e in EmotionLexiconAnalyzer.emotionPrintOrder],
-            outputFile=str(EmotionLexiconAnalyzer.outputPath / f"results/page-emotion-lexicon-{EmotionLexiconAnalyzer.lang}-global-float.csv"),
+            outputFile=EmotionLexiconAnalyzer.outputPath / f"_results/page-emotion-lexicon-{EmotionLexiconAnalyzer.lang}-global-float.tsv",
             compression=EmotionLexiconAnalyzer.compression
         )
         for e in EmotionLexiconAnalyzer.emotionPrintOrder:
             csv_writer.joinCSVs(
-                filesPattern=str(EmotionLexiconAnalyzer.outputPath / f"page-emotion-lexicon-{getEmotionName(e)}-int*.csv"),
+                filesPattern=str(EmotionLexiconAnalyzer.outputPath / f"{getEmotionName(e)}/page-emotion-lexicon-{getEmotionName(e)}-int*.tsv"),
                 headers=["Page name"] + EmotionLexiconAnalyzer.year_month_cosi,
-                outputFile=str(EmotionLexiconAnalyzer.outputPath / f"results/page-emotion-lexicon-{EmotionLexiconAnalyzer.lang}-{getEmotionName(e)}-int.csv"),
+                outputFile=EmotionLexiconAnalyzer.outputPath / f"_results/page-emotion-lexicon-{EmotionLexiconAnalyzer.lang}-{getEmotionName(e)}-int.tsv",
                 compression=EmotionLexiconAnalyzer.compression
             )
             csv_writer.joinCSVs(
-                filesPattern=str(EmotionLexiconAnalyzer.outputPath / f"page-emotion-lexicon-{getEmotionName(e)}-float*.csv"),
+                filesPattern=str(EmotionLexiconAnalyzer.outputPath / f"{getEmotionName(e)}/page-emotion-lexicon-{getEmotionName(e)}-float*.tsv"),
                 headers=["Page name"] + EmotionLexiconAnalyzer.year_month_cosi,
-                outputFile=str(EmotionLexiconAnalyzer.outputPath / f"results/page-emotion-lexicon-{EmotionLexiconAnalyzer.lang}-{getEmotionName(e)}-float.csv"),
+                outputFile=EmotionLexiconAnalyzer.outputPath / f"_results/page-emotion-lexicon-{EmotionLexiconAnalyzer.lang}-{getEmotionName(e)}-float.tsv",
                 compression=EmotionLexiconAnalyzer.compression
             )
 
@@ -157,19 +157,23 @@ class EmotionLexiconAnalyzer(Analyzer):
     def fileStart(self, number: int) -> None:
         self.closeFiles()
 
-        newFilenameInt = str(EmotionLexiconAnalyzer.outputPath / (f"page-emotion-lexicon-global-int-{str(number).zfill(4)}.csv"))
-        self.__file_all_int = file_utils.output_writer(path=newFilenameInt, compression=EmotionLexiconAnalyzer.compression)
+        newFilenameInt = EmotionLexiconAnalyzer.outputPath / (f"global/page-emotion-lexicon-global-int-{str(number).zfill(4)}.tsv")
+        file_utils.create_path(newFilenameInt)
+        self.__file_all_int = file_utils.output_writer(path=str(newFilenameInt), compression=EmotionLexiconAnalyzer.compression)
 
-        newFilenameFloat = str(EmotionLexiconAnalyzer.outputPath / (f"page-emotion-lexicon-global-float-{str(number).zfill(4)}.csv"))
-        self.__file_all_float = file_utils.output_writer(path=newFilenameFloat, compression=EmotionLexiconAnalyzer.compression)
-
-        for e in EmotionLexiconAnalyzer.emotionPrintOrder:
-            newFilenameEmotion = str(EmotionLexiconAnalyzer.outputPath / (f"page-emotion-lexicon-{getEmotionName(e)}-int-{str(number).zfill(4)}.csv"))
-            self.__file_by_emotions_int[e] = file_utils.output_writer(path=newFilenameEmotion, compression=EmotionLexiconAnalyzer.compression)
+        newFilenameFloat = EmotionLexiconAnalyzer.outputPath / (f"global/page-emotion-lexicon-global-float-{str(number).zfill(4)}.tsv")
+        file_utils.create_path(newFilenameFloat)
+        self.__file_all_float = file_utils.output_writer(path=str(newFilenameFloat), compression=EmotionLexiconAnalyzer.compression)
 
         for e in EmotionLexiconAnalyzer.emotionPrintOrder:
-            newFilenameEmotion = str(EmotionLexiconAnalyzer.outputPath / (f"page-emotion-lexicon-{getEmotionName(e)}-float-{str(number).zfill(4)}.csv"))
-            self.__file_by_emotions_float[e] = file_utils.output_writer(path=newFilenameEmotion, compression=EmotionLexiconAnalyzer.compression)
+            newFilenameEmotion = EmotionLexiconAnalyzer.outputPath / (f"{getEmotionName(e)}/page-emotion-lexicon-{getEmotionName(e)}-int-{str(number).zfill(4)}.tsv")
+            file_utils.create_path(newFilenameEmotion)
+            self.__file_by_emotions_int[e] = file_utils.output_writer(path=str(newFilenameEmotion), compression=EmotionLexiconAnalyzer.compression)
+
+        for e in EmotionLexiconAnalyzer.emotionPrintOrder:
+            newFilenameEmotion = EmotionLexiconAnalyzer.outputPath / (f"{getEmotionName(e)}/page-emotion-lexicon-{getEmotionName(e)}-float-{str(number).zfill(4)}.tsv")
+            file_utils.create_path(newFilenameEmotion)
+            self.__file_by_emotions_float[e] = file_utils.output_writer(path=str(newFilenameEmotion), compression=EmotionLexiconAnalyzer.compression)
 
     def closeFiles(self) -> None:
         if self.__file_all_int is not None:
