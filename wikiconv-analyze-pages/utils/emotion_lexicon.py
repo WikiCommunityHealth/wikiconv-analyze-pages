@@ -18,6 +18,7 @@ class Emotions(Enum):
         return self.value
 
 dic: Dict[str, List[Emotions]] = {}
+dicBitmap: Dict[str, int] = {}
 
 
 def getEmotionName(emotion: Emotions) -> str:
@@ -81,6 +82,7 @@ def initEmotionLexicon(lang = 'en'):
         langCol = -1
         for i, langHeader in enumerate(header):
             if langHeader.split('(')[1].split(')')[0] == lang:
+                print(langHeader)
                 langCol = i
                 break
         try:
@@ -97,7 +99,11 @@ def initEmotionLexicon(lang = 'en'):
             for i, x in enumerate(d[-10:]):
                 if x == "1":
                     emotions.append(emotionOrder[i])
+            bits = 0
+            for e in emotions:
+                bits |= e.value
             dic[term] = emotions
+            dicBitmap[term] = bits
 
 
 def tokenize(text: str) -> Iterator[str]:
@@ -106,8 +112,7 @@ def tokenize(text: str) -> Iterator[str]:
 
 def isWordOfEmotion(word: str, emotion: Emotions) -> bool:
     if word in dic:
-        return emotion in dic[word]
-        #return (dic[word] & emotion.value) != 0
+        return (dicBitmap[word] & emotion.value) != 0
     return False
 
 def getEmotionsOfWord(word: str) -> List[Emotions]:

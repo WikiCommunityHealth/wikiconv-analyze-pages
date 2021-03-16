@@ -24,7 +24,6 @@ class EmotionLexiconAnalyzer(Analyzer):
     @staticmethod
     def inizialize():
         EmotionLexiconAnalyzer.configureArgs()
-        print(EmotionLexiconAnalyzer.lang)
         initEmotionLexicon(EmotionLexiconAnalyzer.lang)
 
     @staticmethod
