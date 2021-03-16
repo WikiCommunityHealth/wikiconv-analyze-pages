@@ -1,14 +1,20 @@
 from collections import Counter
 import argparse
 import glob
+from io import TextIOWrapper
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, Iterable, List, TextIO, Union
 from .analyzer import Analyzer
 from .. import file_utils
 from ..utils.emotion_lexicon import initEmotionLexicon, countEmotionsOfText, Emotions, getEmotionName
+from ..utils import csv_writer
 
 class EmotionLexiconAnalyzer(Analyzer):
-    __file = None
+    __file_all_int: Union[TextIOWrapper, TextIO, None] = None
+    __file_all_float: Union[TextIOWrapper, TextIO, None] = None
+    __file_by_emotions: Dict[Emotions, Union[TextIOWrapper, TextIO, None]] = {}
+
+    year_month_cosi: List[str] = []
     outputPath: Path = Path()
     compression = None
     lang = 'en'
@@ -25,6 +31,9 @@ class EmotionLexiconAnalyzer(Analyzer):
     def inizialize():
         EmotionLexiconAnalyzer.configureArgs()
         initEmotionLexicon(EmotionLexiconAnalyzer.lang)
+        #EmotionLexiconAnalyzer.year_month_cosi = [f"{str(y).zfill(4)}-{str(m).zfill(2)}" for y in range(2000, 2021) for m in range(1, 13)]
+        EmotionLexiconAnalyzer.year_month_cosi = [f"{str(y).zfill(4)}" for y in range(2000, 2021)]
+
 
     @staticmethod
     def configureArgs():
@@ -60,22 +69,27 @@ class EmotionLexiconAnalyzer(Analyzer):
 
     @staticmethod
     def finalizeAll():
-        files = glob.glob(str(EmotionLexiconAnalyzer.outputPath / "page-emotion-lexicon-*.csv"))
+        file_utils.create_path(EmotionLexiconAnalyzer.outputPath / "results")
 
-        newFilename = str(EmotionLexiconAnalyzer.outputPath / ("page-emotion-lexicon.csv"))
-        outFile = file_utils.output_writer(path=newFilename, compression=EmotionLexiconAnalyzer.compression)
-
-        header = "Page name,Total wikiconv lines, wikiconv lines analyzed"
+        csv_writer.joinCSVs(
+            filesPattern=str(EmotionLexiconAnalyzer.outputPath / "page-emotion-lexicon-*.csv"),
+            headers=["Page name", "Months"] + [getEmotionName(e) for e in EmotionLexiconAnalyzer.emotionPrintOrder],
+            outputFile=str(EmotionLexiconAnalyzer.outputPath / "results/page-emotion-lexicon.csv"),
+            compression=EmotionLexiconAnalyzer.compression
+        )
+        csv_writer.joinCSVs(
+            filesPattern=str(EmotionLexiconAnalyzer.outputPath / "page-emotion-lexicon-percentage-*.csv"),
+            headers=["Page name", "Months"] + [getEmotionName(e) for e in EmotionLexiconAnalyzer.emotionPrintOrder],
+            outputFile=str(EmotionLexiconAnalyzer.outputPath / "results/page-emotion-lexicon-percentage.csv"),
+            compression=EmotionLexiconAnalyzer.compression
+        )
         for e in EmotionLexiconAnalyzer.emotionPrintOrder:
-            header += f",{getEmotionName(e)}"
-        outFile.write(f"{header}\n")
-        
-        for f in files:
-            with open(f) as infile:
-                for line in infile:
-                    outFile.write(line)
-
-        outFile.close()
+            csv_writer.joinCSVs(
+                filesPattern=str(EmotionLexiconAnalyzer.outputPath / f"page-emotion-lexicon-{getEmotionName(e)}-*.csv"),
+                headers=["Page name"] + EmotionLexiconAnalyzer.year_month_cosi,
+                outputFile=str(EmotionLexiconAnalyzer.outputPath / f"results/page-emotion-lexicon-{getEmotionName(e)}.csv"),
+                compression=EmotionLexiconAnalyzer.compression
+            )
 
 
     def __init__(self):
@@ -85,27 +99,80 @@ class EmotionLexiconAnalyzer(Analyzer):
         if sectionCounter <= 0:
             return
 
-        lineAnalyzed = 0
-        c = Counter()
+        monthCounters: Dict[str, 'Counter[Emotions]'] = {}
+        for m in EmotionLexiconAnalyzer.year_month_cosi:
+            monthCounters[m] = Counter()
+
         for obj in currentSectionObjs:
             if obj['type'] == 'ADDITION' or obj['type'] == 'CREATION':
-                countEmotionsOfText(obj['cleanedContent'], c)
-                # c.update(countEmotionsOfText(obj['cleanedContent']))
-                lineAnalyzed += 1
+                month = obj['timestamp'][:4]
+                c = countEmotionsOfText(obj['cleanedContent'])
+                monthCounters[month].update(c)
 
-        line = currentSectionObjs[0]["pageTitle"]
-        line += f",{len(currentSectionObjs)},{lineAnalyzed}"
+        emotionsData: Dict[Emotions, List[int]] = {}
+        emotionsDataPercentage: Dict[Emotions, List[float]] = {}
         for e in EmotionLexiconAnalyzer.emotionPrintOrder:
-            line += f",{c.get(e, 0)}"
+            emotionsData[e] = []
+            emotionsDataPercentage[e] = []
 
-        self.__file.write(f"{line}\n")
+        for m in EmotionLexiconAnalyzer.year_month_cosi:
+            monthCounter = monthCounters[m]
+            allCounter = monthCounters[m].get(Emotions.ANY, 0)
+            for e in EmotionLexiconAnalyzer.emotionPrintOrder:
+                monthValue = monthCounter.get(e, 0)
+                emotionsData[e].append(monthValue)
+                if e == Emotions.ANY:
+                    emotionsDataPercentage[e].append(monthValue)
+                else:
+                    emotionsDataPercentage[e].append(monthValue / allCounter if allCounter > 0 else 0)
+        
+        title = currentSectionObjs[0]["pageTitle"]
+        csv_writer.writelineMultiValueNumber(
+            file=self.__file_all_int,
+            preValues=[title, "2000-01|2020-12"],
+            multiValues=[emotionsData[e] for e in EmotionLexiconAnalyzer.emotionPrintOrder]
+        )
+        csv_writer.writelineMultiValueNumber(
+            file=self.__file_all_float,
+            preValues=[title, "2000-01|2020-12"],
+            multiValues=[emotionsDataPercentage[e] for e in EmotionLexiconAnalyzer.emotionPrintOrder]
+        )
+        for e in EmotionLexiconAnalyzer.emotionPrintOrder:
+            csv_writer.writelineNumber(
+                file=self.__file_by_emotions[e],
+                values=[title] + emotionsData[e]
+            )
+
+        # line = currentSectionObjs[0]["pageTitle"]
+        # line += f",{len(currentSectionObjs)},{lineAnalyzed}"
+        # for e in EmotionLexiconAnalyzer.emotionPrintOrder:
+        #     line += f",{globalCounter.get(e, 0)}"
+
+        # self.__file.write(f"{line}\n")
 
     def fileStart(self, number: int) -> None:
-        if self.__file is not None:
-            self.__file.close()
-        newFilename = str(EmotionLexiconAnalyzer.outputPath / (f"page-emotion-lexicon-{str(number).zfill(4)}.csv"))
-        self.__file = file_utils.output_writer(path=newFilename, compression=EmotionLexiconAnalyzer.compression)
+        self.closeFiles()
+
+        newFilenameInt = str(EmotionLexiconAnalyzer.outputPath / (f"page-emotion-lexicon-{str(number).zfill(4)}.csv"))
+        self.__file_all_int = file_utils.output_writer(path=newFilenameInt, compression=EmotionLexiconAnalyzer.compression)
+
+        newFilenameFloat = str(EmotionLexiconAnalyzer.outputPath / (f"page-emotion-lexicon-percentage-{str(number).zfill(4)}.csv"))
+        self.__file_all_float = file_utils.output_writer(path=newFilenameFloat, compression=EmotionLexiconAnalyzer.compression)
+
+        for e in EmotionLexiconAnalyzer.emotionPrintOrder:
+            newFilenameEmotion = str(EmotionLexiconAnalyzer.outputPath / (f"page-emotion-lexicon-{getEmotionName(e)}-{str(number).zfill(4)}.csv"))
+            self.__file_by_emotions[e] = file_utils.output_writer(path=newFilenameEmotion, compression=EmotionLexiconAnalyzer.compression)
+
+    def closeFiles(self) -> None:
+        if self.__file_all_int is not None:
+            self.__file_all_int.close()
+
+        if self.__file_all_float is not None:
+            self.__file_all_float.close()
+
+        for k in self.__file_by_emotions:
+            self.__file_by_emotions[k].close()
 
     def finalize(self) -> None:
-        if self.__file is not None:
-            self.__file.close()
+        self.closeFiles()
+
