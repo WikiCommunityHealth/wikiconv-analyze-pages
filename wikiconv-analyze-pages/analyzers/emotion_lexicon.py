@@ -10,10 +10,10 @@ from ..utils.emotion_lexicon import initEmotionLexicon, countEmotionsOfText, Emo
 from ..utils import csv_writer
 
 class EmotionLexiconAnalyzer(Analyzer):
-    __file_all_int: Union[TextIOWrapper, TextIO, None] = None
-    __file_all_float: Union[TextIOWrapper, TextIO, None] = None
-    __file_by_emotions_int: Dict[Emotions, Union[TextIOWrapper, TextIO, None]] = {}
-    __file_by_emotions_float: Dict[Emotions, Union[TextIOWrapper, TextIO, None]] = {}
+    __file_all_int: Union[TextIOWrapper, TextIO, None]
+    __file_all_float: Union[TextIOWrapper, TextIO, None]
+    __file_by_emotions_float: Dict[Emotions, Union[TextIOWrapper, TextIO, None]]
+    __file_by_emotions_int: Dict[Emotions, Union[TextIOWrapper, TextIO, None]]
 
     year_month_cosi: List[str] = []
     outputPath: Path = Path()
@@ -25,7 +25,7 @@ class EmotionLexiconAnalyzer(Analyzer):
         Emotions.ANGER, Emotions.ANTICIPATION, Emotions.DISGUST,
         Emotions.FEAR, Emotions.JOY, Emotions.SADNESS,
         Emotions.SURPRISE, Emotions.TRUST
-        ]
+    ]
 
 
     @staticmethod
@@ -34,8 +34,6 @@ class EmotionLexiconAnalyzer(Analyzer):
         initEmotionLexicon(EmotionLexiconAnalyzer.lang)
         EmotionLexiconAnalyzer.year_month_cosi = [f"{str(y).zfill(4)}-{str(m).zfill(2)}" for y in range(2000, 2021) for m in range(1, 13)]
         # EmotionLexiconAnalyzer.year_month_cosi = [f"{str(y).zfill(4)}" for y in range(2000, 2021)]
-
-
 
     @staticmethod
     def configureArgs():
@@ -100,12 +98,15 @@ class EmotionLexiconAnalyzer(Analyzer):
 
 
     def __init__(self):
-        pass
+        self.__file_by_emotions_int = dict()
+        self.__file_by_emotions_float = dict()
+        self.__file_all_int = None
+        self.__file_all_float = None
 
     def finalizeSection(self, sectionCounter: int, currentSectionObjs: List[Dict[str, Any]], currentSectionId: int) -> None:
         if sectionCounter <= 0:
             return
-
+        
         monthCounters: Dict[str, 'Counter[Emotions]'] = {}
         for m in EmotionLexiconAnalyzer.year_month_cosi:
             monthCounters[m] = Counter()
@@ -165,11 +166,13 @@ class EmotionLexiconAnalyzer(Analyzer):
         file_utils.create_path(newFilenameFloat)
         self.__file_all_float = file_utils.output_writer(path=str(newFilenameFloat), compression=EmotionLexiconAnalyzer.compression)
 
+        self.__file_by_emotions_float = {}
         for e in EmotionLexiconAnalyzer.emotionPrintOrder:
             newFilenameEmotion = EmotionLexiconAnalyzer.outputPath / (f"{getEmotionName(e)}/page-emotion-lexicon-{getEmotionName(e)}-int-{str(number).zfill(4)}.tsv")
             file_utils.create_path(newFilenameEmotion)
             self.__file_by_emotions_int[e] = file_utils.output_writer(path=str(newFilenameEmotion), compression=EmotionLexiconAnalyzer.compression)
 
+        self.__file_by_emotions_float = {}
         for e in EmotionLexiconAnalyzer.emotionPrintOrder:
             newFilenameEmotion = EmotionLexiconAnalyzer.outputPath / (f"{getEmotionName(e)}/page-emotion-lexicon-{getEmotionName(e)}-float-{str(number).zfill(4)}.tsv")
             file_utils.create_path(newFilenameEmotion)
