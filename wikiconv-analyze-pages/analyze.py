@@ -15,7 +15,8 @@ def analyze(files: List[Path], analyzerName: str, parallel = False, max_workers=
     filesAndIndex = enumerate(files)
     if parallel:
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-            executor.map(lambda f: analyzeFileListSync([f], analyzerName), filesAndIndex)
+            iterator = executor.map(lambda f: analyzeFileListSync([f], analyzerName), filesAndIndex)
+            list(iterator)
     else:
         analyzeFileListSync(filesAndIndex, analyzerName)
 

@@ -65,3 +65,9 @@ def create_path(path: Union[pathlib.Path, str]):
     path = pathlib.Path(path)
     if not path.parent.exists():
         path.parent.mkdir(parents=True)
+
+def create_directory(path: Union[pathlib.Path, str]):
+    """Create a path, which may or may not exist."""
+    path = pathlib.Path(path)
+    if not path.exists():
+        path.mkdir(parents=True)

@@ -31,7 +31,6 @@ def writeHeaders(file: Union[TextIOWrapper, TextIO, None], headers: Iterable[str
 
 def joinCSVs(filesPattern: str, headers: Iterable[str], outputFile: Path, compression = None):
     files = glob(filesPattern)
-    file_utils.create_path(outputFile)  
     outFile = file_utils.output_writer(path=str(outputFile), compression=compression)
 
     writeHeaders(outFile, headers)
