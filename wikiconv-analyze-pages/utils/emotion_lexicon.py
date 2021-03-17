@@ -124,10 +124,11 @@ def getEmotionsOfWord(word: str) -> List[Emotions]:
     #     if d & e.value != 0:
     #         yield e
 
-def countEmotionsOfWords(words: Iterator[str], c: Counter[Emotions] = Counter()) -> Counter[Emotions]:
+def countEmotionsOfWords(words: Iterator[str]) -> Counter[Emotions]:
+    c = Counter()
     for w in words:
         c.update(getEmotionsOfWord(w))
     return c
 
-def countEmotionsOfText(text: str, c: Counter[Emotions] = Counter()) -> Counter[Emotions]:
-    return countEmotionsOfWords(tokenize(text), c)
+def countEmotionsOfText(text: str) -> Counter[Emotions]:
+    return countEmotionsOfWords(tokenize(text))

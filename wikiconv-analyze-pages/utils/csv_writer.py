@@ -35,9 +35,10 @@ def joinCSVs(filesPattern: str, headers: Iterable[str], outputFile: Path, compre
 
     writeHeaders(outFile, headers)
     for f in files:
-        with open(f) as infile:
-            for line in infile:
-                outFile.write(line)
+        file = file_utils.open_text_file(f)
+        for line in file:
+            outFile.write(line)
+        file.close()
     outFile.close()
 
 
