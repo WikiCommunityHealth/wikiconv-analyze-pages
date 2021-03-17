@@ -2,6 +2,7 @@ import argparse
 import pathlib
 from . import analyze
 from .analyzers import getAnalyzersNames
+from .utils.timestamp import setOutputPath
 
 def get_args():
 
@@ -33,8 +34,16 @@ def get_args():
         required=False,
         default=4
     )
+    parser.add_argument(
+        '--output-dir-path',
+        type=pathlib.Path,
+        required=False,
+        default=None
+    )
 
-    parsed_args, _ = parser.parse_known_args()
+    parsed_args, a = parser.parse_known_args()
+    if parsed_args.output_dir_path is not None:
+        setOutputPath(parsed_args.output_dir_path)
     return parsed_args
 
 

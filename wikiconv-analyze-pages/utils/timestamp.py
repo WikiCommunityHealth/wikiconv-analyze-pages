@@ -1,8 +1,14 @@
 from datetime import datetime
 from pathlib import Path
 
-def printTimestamp(outputPath: Path, description: str) -> None:
-    with open(str(outputPath / "times.txt"), "a") as f:
+timesOutputPath = Path('.')
+def setOutputPath(outputPath: Path):
+    global timesOutputPath
+    timesOutputPath = outputPath
+
+def printTimestamp(description: str) -> None:
+    print(str(timesOutputPath / 'times.txt'))
+    with open(str(timesOutputPath / 'times.txt'), "a") as f:
         line = f'{datetime.now().strftime("%H:%M:%S")}: {description}\n'
         f.write(line)
         print(line)

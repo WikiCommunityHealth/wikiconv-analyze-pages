@@ -9,7 +9,7 @@ import concurrent.futures
 from .analyzers import getAnalyzer, getAnalyzerClass
 
 def analyze(files: List[Path], analyzerName: str, parallel = False, max_workers=4):
-    printTimestamp(Path('.'), "Inizializing")
+    printTimestamp("Inizializing")
     getAnalyzerClass(analyzerName).inizialize()
 
     filesAndIndex = enumerate(files)
@@ -20,17 +20,17 @@ def analyze(files: List[Path], analyzerName: str, parallel = False, max_workers=
     else:
         analyzeFileListSync(filesAndIndex, analyzerName)
 
-    printTimestamp(Path('.'), "Finalizing")
+    printTimestamp("Finalizing")
     getAnalyzerClass(analyzerName).finalizeAll()
 
-    printTimestamp(Path('.'), "All done")
+    printTimestamp("All done")
 
 def analyzeFileListSync(filesAndIndex, analyzerName: str):
     analyzer = getAnalyzer(analyzerName)
     for i, inputFile in filesAndIndex:
-        printTimestamp(Path('.'), f"Starting {os.path.basename(inputFile)}")
+        printTimestamp(f"Starting {os.path.basename(inputFile)}")
         analyzeFile(inputFile, i, analyzer)
-        printTimestamp(Path('.'), f"Completed {os.path.basename(inputFile)}")
+        printTimestamp(f"Completed {os.path.basename(inputFile)}")
     analyzer.finalize()
 
 def analyzeFile(inputFile: Path, index: int, analyzer: Analyzer):

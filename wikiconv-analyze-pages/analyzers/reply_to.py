@@ -1,6 +1,5 @@
 import json
 import argparse
-from ..utils.timestamp import printTimestamp
 from pathlib import Path
 from typing import Any, List, Mapping
 from .analyzer import Analyzer
