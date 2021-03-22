@@ -8,6 +8,9 @@ from .analyzers import Analyzer
 import concurrent.futures
 from .analyzers import getAnalyzer, getAnalyzerClass
 
+
+analysisCompleted = False
+
 def analyze(files: List[Path], analyzerName: str, parallel = False, max_workers=4):
     printTimestamp("Inizializing")
     getAnalyzerClass(analyzerName).inizialize()
@@ -26,14 +29,18 @@ def analyze(files: List[Path], analyzerName: str, parallel = False, max_workers=
     printTimestamp("All done")
 
 def analyzeFileListSync(filesAndIndex, analyzerName: str):
+    global analysisCompleted
     analyzer = getAnalyzer(analyzerName)
     for i, inputFile in filesAndIndex:
+        if analysisCompleted:
+            return
         printTimestamp(f"Starting {os.path.basename(inputFile)}")
         analyzeFile(inputFile, i, analyzer)
         printTimestamp(f"Completed {os.path.basename(inputFile)}")
     analyzer.finalize()
 
 def analyzeFile(inputFile: Path, index: int, analyzer: Analyzer):
+    global analysisCompleted
 
     analyzer.fileStart(index)
     currentSectionId = -1
@@ -50,10 +57,15 @@ def analyzeFile(inputFile: Path, index: int, analyzer: Analyzer):
 
         # ON CHANGE PAGE
         if sectionId != currentSectionId:
-            analyzer.finalizeSection(currentSectionCounter, currentSectionObjs, currentSectionId)
+            completed = analyzer.finalizeSection(currentSectionCounter, currentSectionObjs, currentSectionId)
             currentSectionId = sectionId
             currentSectionCounter = 0
             currentSectionObjs = []
+
+            if completed == True or analysisCompleted == True:
+                analysisCompleted = True
+                printTimestamp(f"Analysis completed without reading all files")
+                return
 
         # FILTER LINE
         if not analyzer.filterId(sectionId):

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, List, Mapping
+from typing import Any, List, Mapping, Union
 from abc import ABC, abstractmethod
 class Analyzer(ABC):
 
@@ -11,7 +11,6 @@ class Analyzer(ABC):
     def finalizeAll():
         pass
 
-    @abstractmethod
     def __init__(self):
         pass
 
@@ -29,7 +28,7 @@ class Analyzer(ABC):
         sectionCounter: int,
         currentSectionObjs: List[Mapping[str, Any]],
         currentSectionId: int
-        ) -> None:
+        ) -> Union[None, bool]:
         return
 
     def finalize(self) -> None:

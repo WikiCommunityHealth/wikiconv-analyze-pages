@@ -32,6 +32,7 @@ requests = "^2.25.1"
 typing = "^3.7.4"
 compressed-stream = {git = "https://github.com/CristianCantoro/compressed_stream.git", rev = "master"}
 liwc = "^0.5.0"
+wordcloud = "^1.8.1"
 
 [tool.poetry.dev-dependencies]
 

@@ -132,3 +132,17 @@ def countEmotionsOfWords(words: Iterator[str]) -> Counter[Emotions]:
 
 def countEmotionsOfText(text: str) -> Counter[Emotions]:
     return countEmotionsOfWords(tokenize(text))
+
+def separateWordsByEmotion(text: str, dictToUpdate: Dict[Emotions, List[str]] = None) -> Dict[Emotions, List[str]]:
+    if dictToUpdate is None:
+        dictToUpdate = {}
+        for e in Emotions:
+            dictToUpdate[e] = []
+
+    words = tokenize(text)
+    for w in words:
+        if w in dic:
+            for e in dic[w]:
+                dictToUpdate[e].append(w)
+
+    return dictToUpdate
