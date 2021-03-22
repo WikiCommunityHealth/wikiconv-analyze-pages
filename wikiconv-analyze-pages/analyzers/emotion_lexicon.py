@@ -4,7 +4,7 @@ from io import TextIOWrapper
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, TextIO, Union
 from .analyzer import Analyzer
-from .. import file_utils
+from ..utils import file_utils
 from ..utils.emotion_lexicon import initEmotionLexicon, countEmotionsOfText, Emotions, getEmotionName
 from ..utils import csv_writer
 

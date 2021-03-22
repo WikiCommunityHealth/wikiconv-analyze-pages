@@ -3,7 +3,7 @@ import argparse
 from pathlib import Path
 from typing import Any, List, Mapping
 from .analyzer import Analyzer
-from .. import file_utils
+from ..utils import file_utils
 from ..utils.discussion_graph import DiscussionGraph
 
 class ReplyToAnalyzer(Analyzer):

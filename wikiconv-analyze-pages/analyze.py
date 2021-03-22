@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from .utils.timestamp import printTimestamp
 from typing import Any, List, Mapping, Tuple
-from . import file_utils
+from .utils import file_utils
 from .analyzers import Analyzer
 import concurrent.futures
 from .analyzers import getAnalyzer, getAnalyzerClass

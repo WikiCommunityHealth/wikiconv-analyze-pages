@@ -5,7 +5,7 @@ import datetime
 import numpy as np
 from collections import Counter
 from typing import Iterable, Mapping, List
-from .. import types
+from ..utils import types
 import matplotlib.pyplot as plt
 
 

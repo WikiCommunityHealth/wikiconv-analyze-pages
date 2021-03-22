@@ -2,7 +2,7 @@ from glob import glob
 from io import TextIOWrapper
 from pathlib import Path
 from typing import Iterable, TextIO, Union
-from .. import file_utils
+from ..utils import file_utils
 
 SEPARATOR = '\t'
 SECONDARY_SEPARATOR = '|'
