@@ -3,6 +3,7 @@ import pathlib
 from . import analyze
 from .analyzers import getAnalyzersNames
 from .utils.timestamp import setOutputPath
+from .utils.database import DatabaseService
 
 def get_args():
 
@@ -61,3 +62,12 @@ def main():
 # python -m wikiconv-analyze-pages reply-to /mnt/d --output_dir_path . --output-compression gz --parallel --max-workers 5
 if __name__ == '__main__':
     main()
+    # db = DatabaseService(['m1', 'm2', 'm3'])
+    # db.dropTables(['it', 'en', 'es'])
+    # db.createTable(['it', 'en', 'es'])
+    # db.insertMetrics('it', 11, 'pluto', '2020-01', [
+    #     (1,2,3,4),
+    #     (10,20,30,40),
+    #     (100,200,300,400)
+    # ])
+    # db.finalize()
