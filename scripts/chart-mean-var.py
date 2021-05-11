@@ -46,17 +46,15 @@ def plotta( months,
             showOnly: List[Union[str, None]] = [None]
         ):
     f = plt.figure(figsize=(100, len(showOnly) * 15))
-    i = 1
 
-    for emotion in showOnly:
-        ax = f.add_subplot(len(showOnly), 1, i)
+    for i, emotion in enumerate(showOnly):
+        ax = f.add_subplot(len(showOnly), 1, i + 1)
         ax.title.set_text(emotion if emotion is not None else 'All')
-        i += 1
 
         for e in ys:
             if emotion is None or emotion == e:
                 ax.plot(months, ys[e], 'k-', color=emotionColor[e][0], label=e)
-                if varss is not None and e != 'global':
+                if varss is not None and e != 'global' and emotion is not None:
                     ax.fill_between(months, ys[e]-varss[e], ys[e]+varss[e], color=emotionColor[e][1])
         ax.legend()
 
@@ -78,7 +76,7 @@ def plotta( months,
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
     plt.gca().xaxis.set_major_locator(mdates.MonthLocator(interval=3))
     plt.show()
-    plt.savefig(f'pippo.jpeg')
+    # plt.savefig(f'pippo.jpeg')
     plt.close()
 print("Fn loaded")
 
@@ -106,6 +104,7 @@ if True:
     for e in vol:
         vol[e] = vol[e][102:-8]
 # plotta(months, ys, vol=vol, showOnly='anger')
+print("Done")
 
 
 # %% mean
@@ -143,6 +142,6 @@ for e in em:
 ilRisultato['global'] = mediaDistanzaDallaMedia
 
 plotta(months, ilRisultato, varss, vol=vol, showOnly=[None] + em)
-
+print("Done")
 
 # %%
