@@ -1,85 +1,140 @@
 import argparse
-import re
-import liwc
 import numpy as np
 from collections import Counter
-from typing import Any, Callable, Generator, Iterable, Mapping, List, cast
+from typing import Any, Callable, Dict, Generator, Iterable, Mapping, List, cast
+from ..utils.emotion_lexicon import initEmotionLexicon, countEmotionsOfText, Emotions, getEmotionName
 from .analyzer import Analyzer
+import json
+import matplotlib.pyplot as plt
+
+
 
 
 class MeanVarAnalyzer(Analyzer):
-    __minPageLines = 100
 
-    __liwcParser: Callable[[Any], Generator[Any, None, None]]
-    __categoryNames: List[str]
-    __pagesValues: Mapping[str, List[float]]
-    __minPageLines: int = 0
+    __sectionsEmotionsCount: Dict[Emotions, List[float]]
+    __sectionsEmotionsCountByMonth: Dict[str, Dict[Emotions, List[float]]]
+    lang = 'en'
 
-    def __init__(self):
-        self.__liwcParser, self.__categoryNames = liwc.load_token_parser('./LIWC2007_English080730.dic')
-        self.__categoryNames = cast(List[str], self.__categoryNames)
-        self.__pagesValues = {}
 
-        for cat in self.__categoryNames:
-            self.__pagesValues[cat] = cast(List[float], [])
-        range(self.__minPageLines)
 
-    def configureArgs(self):
+
+    @staticmethod
+    def inizialize():
+        MeanVarAnalyzer.configureArgs()
+
+        MeanVarAnalyzer.__sectionsEmotionsCount = {}
+        for e in Emotions:
+            MeanVarAnalyzer.__sectionsEmotionsCount[e] = []
+
+        MeanVarAnalyzer.__sectionsEmotionsCountByMonth = {}
+        for year in range(2000, 2021):
+            for month in range(1, 13):
+                monthCounters: Dict[Emotions, List[float]] = {}
+                for e in Emotions:
+                    monthCounters[e] = []
+                MeanVarAnalyzer.__sectionsEmotionsCountByMonth[f'{year}-{month:02}'] = monthCounters
+
+        initEmotionLexicon(MeanVarAnalyzer.lang)
+
+    @staticmethod
+    def configureArgs():
         parser = argparse.ArgumentParser(
-            prog='mean_var',
+            prog='emotion_analyzer',
             description='Graph snapshot features extractor.',
         )
         parser.add_argument(
-            '--min-page-lines',
-            type=int,
-            required=True,
-            help='Analyzer module name.'
+            '--lang',
+            type=str,
+            required=False,
+            default='en',
+            help='Language.',
         )
         parsed_args, _ = parser.parse_known_args()
-        self.__minPageLines = parsed_args.min_page_lines
-
-    def filterId(self, sectionId: int) -> bool:
-        return True
+        MeanVarAnalyzer.lang = parsed_args.lang
 
     def filterObj(self, obj: Mapping[str, Any]) -> bool:
         return obj["type"] != "DELETION" and obj["type"] != "MODIFICATION"
 
-    def finalizeSection(self, sectionCounter: int, currentSectionObjs: List[Mapping[str, Any]], currentSectionId: int) -> None:
-        if sectionCounter >= self.__minPageLines:
-            self.__analyzePage(currentSectionObjs)
+    def finalizeSection(self, lineCount: int, currentSectionObjs: List[Mapping[str, Any]], currentSectionId: int) -> None:
+        if lineCount <= 0:
+            return
 
-    def __analyzePage(self, pageObjs: List[Mapping[str, Any]]):
-        pageCounter: 'Counter[str]' = Counter()
-        totalNumberOfWords = 0
-        for obj in pageObjs:
-            totalNumberOfWords += self.__analyzeLine(obj["cleanedContent"], pageCounter)
+        pageCounter: Counter[Emotions] = Counter()
+        thisMonthCounter: Counter[Emotions] = Counter()
+        thisMonth = ''
+
+        for obj in currentSectionObjs:
+            month = obj['timestamp'][:7]
+            if month != thisMonth:
+                if thisMonth != '':
+                    self.saveEmotionCounter(MeanVarAnalyzer.__sectionsEmotionsCountByMonth[thisMonth], thisMonthCounter)
+                thisMonth = month
+                pageCounter.update(thisMonthCounter)
+                thisMonthCounter = Counter()
+
+            c: Counter[Emotions] = countEmotionsOfText(obj['cleanedContent'])
+            thisMonthCounter.update(c)
         
-        if totalNumberOfWords > 0:
-            for cat in self.__categoryNames:
-                self.__pagesValues[cat].append(pageCounter[cat] / totalNumberOfWords)
 
-    def __analyzeLine(self, line: str, pageCounter: 'Counter[str]') -> int:
-        words = list(self.__tokenize(line))
-        pageCounter.update([category for w in words for category in self.__liwcParser(w)])
-        return len(words)
+        self.saveEmotionCounter(MeanVarAnalyzer.__sectionsEmotionsCountByMonth[thisMonth], thisMonthCounter)
+        pageCounter.update(thisMonthCounter)
 
-    def __tokenize(self, text: str) -> Iterable[str]:
-        for match in re.finditer(r'\w+', text, re.UNICODE):
-            yield match.group(0)
+        self.saveEmotionCounter(MeanVarAnalyzer.__sectionsEmotionsCount, pageCounter)
 
-
-    def finalize(self):
-        with open("output/categories_mean_var.txt", "w") as f:
-            with open("output/categories_mean_var_human.txt", "w") as f_human:
-                for cat in self.__categoryNames:
-
-                    mean = np.mean(self.__pagesValues[cat])
-                    var = np.var(self.__pagesValues[cat])
-
-                    f.write(f"{cat}\t{mean}\t{var}\n")
-                    f_human.write(f"{cat:12}\t{mean:.6f}\t{var:.6f}\n")
-                    print(f"{cat:12}\t{mean:.6f}\t{var:.7f}")
+    def saveEmotionCounter(self, dictToUpdate: Dict[Emotions, List[float]], c: 'Counter[Emotions]'):
+        analyzedWords = c[Emotions.ANY]
+        if analyzedWords > 0:
+            for e in Emotions:
+                dictToUpdate[e].append(c[e] / analyzedWords)
 
 
 
+    @staticmethod
+    def finalizeAll():
+        res = MeanVarAnalyzer.meanVarFromEmotionCounter(MeanVarAnalyzer.__sectionsEmotionsCount)
 
+        resMonth: Dict[str, Dict[str, Dict[str, float]]] = {}
+        for month in MeanVarAnalyzer.__sectionsEmotionsCountByMonth:
+            resMonth[month] = MeanVarAnalyzer.meanVarFromEmotionCounter(MeanVarAnalyzer.__sectionsEmotionsCountByMonth[month])
+
+        with open('out.json', 'w') as f:
+            json.dump({
+                'ALL': res,
+                'months': resMonth
+            }, f, cls=EnumEncoder, indent=4)
+
+        MeanVarAnalyzer.drawCharts(resMonth)
+
+    @staticmethod
+    def meanVarFromEmotionCounter(c: Dict[Emotions, List[float]]) -> Dict[str, Dict[str, float]]:
+        res: Dict[str, Dict[str, float]] = {}
+        for e in Emotions:
+                if len(c[e]) > 0:
+                    res[getEmotionName(e)] = {
+                        'mean': float(np.mean(c[e])),
+                        'var': float(np.var(c[e])),
+                        'len': len(c[e])
+                    }
+                else:
+                    res[getEmotionName(e)] = {
+                        'mean': 0,
+                        'var': 0,
+                        'len': 0
+                    }
+        return res
+
+    @staticmethod
+    def drawCharts(d: Dict[str, Dict[str, Dict[str, float]]]):
+        x: List[str] = [month for month in d]
+        y = [d[month][getEmotionName(Emotions.ANGER)]['mean'] for month in d]
+
+        plt.plot(x, y)
+        plt.savefig(f'ch.png')
+
+class EnumEncoder(json.JSONEncoder):
+    def default(self, obj):
+        print(obj)
+        if isinstance(obj, Emotions):
+            return getEmotionName(obj)
+        return json.JSONEncoder.default(self, obj)

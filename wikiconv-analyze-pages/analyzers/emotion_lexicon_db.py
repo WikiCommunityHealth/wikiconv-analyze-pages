@@ -79,8 +79,6 @@ class EmotionLexiconAnalyzerDb(Analyzer):
 
         title = currentSectionObjs[0]["pageTitle"]
         id = int(currentSectionObjs[0]["pageId"])
-        if (title == 'User talk:68.15.104.155'):
-            print(title)
 
         monthCounter = Counter()
         sectionCounter = Counter()
@@ -88,8 +86,6 @@ class EmotionLexiconAnalyzerDb(Analyzer):
         for obj in currentSectionObjs:
             if obj['type'] == 'ADDITION' or obj['type'] == 'CREATION':
                 month = obj['timestamp'][:7]
-                if (title == 'User talk:68.15.104.155'):
-                    print(month)
 
                 if month != thisMonth:
                     if thisMonth != '':
