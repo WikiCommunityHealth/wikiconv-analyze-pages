@@ -33,44 +33,52 @@ em: List[str] = [
     "trust",
 ]
 
-with open('./out.json') as f:
+with open('../out.json') as f:
     data = json.load(f)['months']
 print("File loaded")
 
 
 # %% load fn
-def plotta(months, ys: Dict[str, np.ndarray], varss: Union[Dict[str, np.ndarray], None] = None, vol: Union[Dict[str, np.ndarray], None] = None, showOnly: Union[str, None] = None):
-    f = plt.figure(figsize=(100,20))
+def plotta( months,
+            ys: Dict[str, np.ndarray],
+            varss: Union[Dict[str, np.ndarray], None] = None,
+            vol: Union[Dict[str, np.ndarray], None] = None,
+            showOnly: List[Union[str, None]] = [None]
+        ):
+    f = plt.figure(figsize=(100, len(showOnly) * 15))
+    i = 1
 
-    ax = f.add_subplot(111)
+    for emotion in showOnly:
+        ax = f.add_subplot(len(showOnly), 1, i)
+        ax.title.set_text(emotion if emotion is not None else 'All')
+        i += 1
 
-    for e in ys:
-        if showOnly is None or showOnly == e:
-            ax.plot(months, ys[e], 'k-', color=emotionColor[e][0], label=e)
-            if varss is not None and e != 'global':
-                ax.fill_between(months, ys[e]-varss[e], ys[e]+varss[e], color=emotionColor[e][1])
-    ax.legend()
+        for e in ys:
+            if emotion is None or emotion == e:
+                ax.plot(months, ys[e], 'k-', color=emotionColor[e][0], label=e)
+                if varss is not None and e != 'global':
+                    ax.fill_between(months, ys[e]-varss[e], ys[e]+varss[e], color=emotionColor[e][1])
+        ax.legend()
+
+        if vol is not None:
+            axTwin = plt.twinx()
+            ax.patch.set_visible(False)
+            axTwin.patch.set_visible(True)
+            ax.set_zorder(axTwin.get_zorder() + 1)
+
+            if emotion is None:
+                axTwin.bar(months, vol['global'], 15, color='gainsboro', label='Volumes')
+            else:
+                axTwin.bar(months, vol['global'] - vol[emotion], 15, color='gainsboro', label='Volumes')
+                axTwin.bar(months, vol[emotion], 15, color=emotionColor[emotion][0], label='Specific')
+            axTwin.set_ylim(0, max(vol['global']) / 40)
+            axTwin.set_ylabel('Volumes')
+
     plt.gcf().autofmt_xdate()
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
     plt.gca().xaxis.set_major_locator(mdates.MonthLocator(interval=3))
-
-
-    if vol is not None:
-        axTwin = plt.twinx()
-        ax.patch.set_visible(False)
-        axTwin.patch.set_visible(True)
-        ax.set_zorder(axTwin.get_zorder() + 1)
-
-        if showOnly is None:
-            axTwin.bar(months, vol['global'], 15, color='gainsboro', label='Volumes')
-        else:
-            axTwin.bar(months, vol['global'] - vol[showOnly], 15, color='gainsboro', label='Volumes')
-            axTwin.bar(months, vol[showOnly], 15, color=emotionColor[showOnly][0], label='Specific')
-        axTwin.set_ylim(0, max(vol['global']) / 40)
-        axTwin.set_ylabel('Volumes')
-
     plt.show()
-    # plt.savefig(f'cc.png')
+    plt.savefig(f'pippo.jpeg')
     plt.close()
 print("Fn loaded")
 
@@ -88,7 +96,7 @@ for e in em:
     vol[e] = np.array([data[month][e]['len'] for month in data])
 vol['global'] = np.array([ sum([data[month][e]['len'] for e in data[month]]) for month in data])
 
-
+# Trim
 if True:
     months = months[102:-8]
     for e in ys:
@@ -97,11 +105,6 @@ if True:
         varss[e] = varss[e][102:-8]
     for e in vol:
         vol[e] = vol[e][102:-8]
-    # for e in em:
-    #     ys[e] = ys[e][100:]
-    #     varss[e] = varss[e][100:]
-    #     vol[e] = vol[e][100:]
-
 # plotta(months, ys, vol=vol, showOnly='anger')
 
 
@@ -138,7 +141,8 @@ ilRisultato = {}
 for e in em:
     ilRisultato[e] = distanzaDallaMedia[e] - mediaDistanzaDallaMedia
 ilRisultato['global'] = mediaDistanzaDallaMedia
-plotta(months, ilRisultato, varss, vol=vol, showOnly='anger')
+
+plotta(months, ilRisultato, varss, vol=vol, showOnly=[None] + em)
 
 
 # %%
