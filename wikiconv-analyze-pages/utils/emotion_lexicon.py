@@ -43,7 +43,7 @@ def getEmotionName(emotion: Emotions) -> str:
     if emotion == Emotions.TRUST:
         return "trust"
     if emotion == Emotions.ANY:
-        return "analized-words"
+        return "analized"
     return "unknown"
 
 def initEmotionLexicon(lang = 'en'):

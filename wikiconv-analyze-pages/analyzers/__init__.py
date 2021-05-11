@@ -2,6 +2,7 @@ from typing import Callable, Dict, List, Mapping, Type
 from .mean_var import MeanVarAnalyzer
 from .reply_to import ReplyToAnalyzer
 from .emotion_lexicon import EmotionLexiconAnalyzer
+from .emotion_lexicon_db import EmotionLexiconAnalyzerDb
 from .item_word_cloud import ItemWordCloud
 from .analyzer import Analyzer
 
@@ -10,6 +11,7 @@ def __getAnalyzers() -> Dict[str, Type[Analyzer]]:
         "mean-var": MeanVarAnalyzer,
         "reply-to": ReplyToAnalyzer,
         "emotion-lexicon": EmotionLexiconAnalyzer,
+        "emotion-lexicon-db": EmotionLexiconAnalyzerDb,
         "item-word-cloud": ItemWordCloud
     }
 

@@ -42,7 +42,7 @@ def get_args():
         default=None
     )
 
-    parsed_args, a = parser.parse_known_args()
+    parsed_args, _ = parser.parse_known_args()
     if parsed_args.output_dir_path is not None:
         setOutputPath(parsed_args.output_dir_path)
     return parsed_args
@@ -60,6 +60,7 @@ def main():
     analyze.analyze(files=files, analyzerName=analyzerName, parallel=parallel, max_workers=max_workers)
 
 # python -m wikiconv-analyze-pages reply-to /mnt/d --output_dir_path . --output-compression gz --parallel --max-workers 5
+# python -m wikiconv-analyze-pages emotion-lexicon-db /mnt/d --parallel --max-workers 5
 if __name__ == '__main__':
     main()
     # db = DatabaseService(['m1', 'm2', 'm3'])
