@@ -6,18 +6,14 @@ from ..utils.emotion_lexicon import initEmotionLexicon, countEmotionsOfText, Emo
 from .analyzer import Analyzer
 import json
 import matplotlib.pyplot as plt
-
-
-
+from pathlib import Path
 
 class MeanVarAnalyzer(Analyzer):
 
     __sectionsEmotionsCount: Dict[Emotions, List[float]]
     __sectionsEmotionsCountByMonth: Dict[str, Dict[Emotions, List[float]]]
     lang = 'en'
-
-
-
+    outFile: Path = Path('out.json')
 
     @staticmethod
     def inizialize():
@@ -44,6 +40,12 @@ class MeanVarAnalyzer(Analyzer):
             description='Graph snapshot features extractor.',
         )
         parser.add_argument(
+            '--output-file',
+            metavar='OUTPUT_FILE',
+            type=Path,
+            required=True,
+        )
+        parser.add_argument(
             '--lang',
             type=str,
             required=False,
@@ -52,6 +54,8 @@ class MeanVarAnalyzer(Analyzer):
         )
         parsed_args, _ = parser.parse_known_args()
         MeanVarAnalyzer.lang = parsed_args.lang
+        MeanVarAnalyzer.outFile = parsed_args.output_file
+
 
     def filterObj(self, obj: Mapping[str, Any]) -> bool:
         return obj["type"] != "DELETION" and obj["type"] != "MODIFICATION"
@@ -98,7 +102,7 @@ class MeanVarAnalyzer(Analyzer):
         for month in MeanVarAnalyzer.__sectionsEmotionsCountByMonth:
             resMonth[month] = MeanVarAnalyzer.meanVarFromEmotionCounter(MeanVarAnalyzer.__sectionsEmotionsCountByMonth[month])
 
-        with open('out.json', 'w') as f:
+        with open(MeanVarAnalyzer.outFile, 'w') as f:
             json.dump({
                 'ALL': res,
                 'months': resMonth
