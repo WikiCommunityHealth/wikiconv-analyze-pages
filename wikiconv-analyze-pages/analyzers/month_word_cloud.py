@@ -76,4 +76,5 @@ class MonthWordCloud(Analyzer):
             axs[x][y].imshow(wordcloud, interpolation='bilinear')
 
         fig.savefig(MonthWordCloud.outputPath /  f'{month}.png')
+        plt.close()
         print(f'{month} Done')
