@@ -62,20 +62,19 @@ class MonthWordCloud(Analyzer):
         wordsByEmotions: Union[Dict[emotion_lexicon.Emotions, List[str]], None] = None
         for obj in currentSectionObjs:
             wordsByEmotions = emotion_lexicon.separateWordsByEmotion(obj['cleanedContent'], wordsByEmotions)
-        if len(wordsByEmotions[emotion_lexicon.Emotions.ANY]) <= 0:
-            return
 
         fig, axs = plt.subplots(nrows=6, ncols=2, figsize=(40,70))
         fig.suptitle(f"{month[:4]}-{month[4:]}", fontsize=100)
         # fig.tight_layout()
 
         for i, e in enumerate(emotion_lexicon.Emotions):
-            x = i // 2
-            y = i % 2
-            wordcloud = WordCloud(collocations=False, max_font_size=40).generate(' '.join(wordsByEmotions[e]))
-            axs[x][y].set_title(f"{emotion_lexicon.getEmotionName(e)} - {len(wordsByEmotions[e])}", fontsize=72)
-            axs[x][y].axis("off")
-            axs[x][y].imshow(wordcloud, interpolation='bilinear')
+            if len(wordsByEmotions[e]) > 0:
+                x = i // 2
+                y = i % 2
+                wordcloud = WordCloud(collocations=False, max_font_size=40).generate(' '.join(wordsByEmotions[e]))
+                axs[x][y].set_title(f"{emotion_lexicon.getEmotionName(e)} - {len(wordsByEmotions[e])}", fontsize=72)
+                axs[x][y].axis("off")
+                axs[x][y].imshow(wordcloud, interpolation='bilinear')
 
         fig.savefig(MonthWordCloud.outputPath /  f'{month}.png')
         plt.close()
