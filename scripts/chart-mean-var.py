@@ -1,10 +1,11 @@
-# %% load
+# %% imports and const
 from typing import Dict, List, Tuple, Union, cast
 import json
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 import datetime as dt
+
 
 emotionColor: Dict[str, Tuple[str, str]] = {
     "global": ('black', 'black'),
@@ -34,17 +35,13 @@ em: List[str] = [
 ]
 showAll: List[Union[str, None]] = cast(List[Union[str, None]], [None]) + cast(List[Union[str, None]], em)
 
-with open('../out.json') as f:
-    data = json.load(f)['months']
-print("File loaded")
-
-
 # %% load fn
 def plotta( months,
             ys: Dict[str, np.ndarray],
             varss: Union[Dict[str, np.ndarray], None] = None,
             vol: Union[Dict[str, np.ndarray], None] = None,
-            showOnly: List[Union[str, None]] = [None]
+            showOnly: List[Union[str, None]] = [None],
+            name: str = 'c.jpeg'
         ):
     f = plt.figure(figsize=(100, len(showOnly) * 15))
 
@@ -70,18 +67,22 @@ def plotta( months,
             else:
                 axTwin.bar(months, vol['global'] - vol[emotion], 15, color='gainsboro', label='Volumes')
                 axTwin.bar(months, vol[emotion], 15, color=emotionColor[emotion][0], label='Specific')
-            axTwin.set_ylim(0, max(vol['global']) / 40)
+            axTwin.set_ylim(0, max(vol['global']) / 1)
             axTwin.set_ylabel('Volumes')
 
     plt.gcf().autofmt_xdate()
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
     plt.gca().xaxis.set_major_locator(mdates.MonthLocator(interval=3))
     plt.show()
-    # plt.savefig(f'pippo.jpeg')
+    # plt.savefig('../charts/' + name, bbox_inches='tight')
     plt.close()
 print("Fn loaded")
 
-
+# %% load file
+lang = 'en'
+with open(f'../assets/mean-var/{lang}.json') as f:
+    data = json.load(f)['months']
+print("File loaded")
 
 # %% calculate stuff
 months = [dt.datetime.strptime(month, '%Y-%m').date() for month in data]
@@ -104,10 +105,10 @@ vol['global'] = np.array([ sum([data[month][e]['len'] for e in data[month]]) for
 means['global'] = np.mean([means[m] for m in means])
 
 def trimArr(a):
-    return a[102:-8]
+    return a[45:-8]
 def trimArrDict(d):
     for e in d:
-        d[e] = d[e][102:-8]
+        d[e] = d[e][45:-8]
 # Trim
 if True:
     months = trimArr(months)
@@ -122,33 +123,33 @@ if True:
 print("Done")
 
 # %% basic charts
-print("Raw data")
-plotta(months, ys, varss, vol=vol, showOnly=showAll)
+print(f"Raw data {lang}")
+plotta(months, ys, varss, vol=vol, showOnly=['negative', 'positive'], name=f"{lang}-0-raw-data.jpeg")
 # plotta(months, meanOverVar, vol=vol, showOnly=showAll)
 # plotta(months, meanOverVar, vol=vol, showOnly=showAll)
 print("Std score")
-# plotta(months, standardScore, vol=vol)
+plotta(months, standardScore, vol=vol, name=f"{lang}-1-std-score.jpeg")
 
 
 # %% Means lines to plot
 toPlotMeans: Dict[str, np.ndarray] = {}
 for e in means:
     toPlotMeans[e] = np.array([means[e]] * len(months))
-print("Medie")
-plotta(months, toPlotMeans)
+print(f"Medie {lang}")
+# plotta(months, toPlotMeans, name=f"{lang}-1-medie.jpeg")
 
 # %% Distance from avg line
 distanzaDallaMedia: Dict[str, np.ndarray] = {}
 for e in em:
-    distanzaDallaMedia[e] = ys[e] - means[e]
+    distanzaDallaMedia[e] = (ys[e] - means[e])
 # Avg distance from avg line
 mediaDistanzaDallaMedia = []
 for i in range(0, len(months)):
     mediaDistanzaDallaMedia.append(np.mean([distanzaDallaMedia[e][i] for e in distanzaDallaMedia]))
 distanzaDallaMedia['global'] = np.array(mediaDistanzaDallaMedia)
 
-print("Distanza dalla media")
-plotta(months, distanzaDallaMedia)
+print(f"Distanza dalla media  {lang}")
+# plotta(months, distanzaDallaMedia, name=f"{lang}-2-avg-distance.jpeg")
 
 
 # %% res
@@ -156,13 +157,14 @@ ilRisultato: Dict[str, np.ndarray] = {}
 for e in em:
     ilRisultato[e] = distanzaDallaMedia[e] - mediaDistanzaDallaMedia
 ilRisultato['global'] = np.array(mediaDistanzaDallaMedia)
-print("Res")
-plotta(months, ilRisultato, varss, vol=vol, showOnly=showAll)
+print(f"Final {lang}")
+plotta(months, ilRisultato, varss, vol=vol, showOnly=showAll, name=f"{lang}-2-finale.jpeg")
 
-# %% red std score
-resStdScore: Dict[str, np.ndarray] = {}
-for e in em:
-    resStdScore[e] = (ilRisultato[e] - np.mean(ilRisultato[e])) / np.var(ilRisultato[e])
-plotta(months, resStdScore, vol=vol)
+# # %% red std score
+# resStdScore: Dict[str, np.ndarray] = {}
+# for e in em:
+#     resStdScore[e] = (ilRisultato[e] - np.mean(ilRisultato[e])) / np.var(ilRisultato[e])
+# plotta(months, resStdScore, vol=vol)
 
 # %%
+print("--------------------------------------")
