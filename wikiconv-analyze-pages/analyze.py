@@ -77,4 +77,5 @@ def analyzeFile(inputFile: Path, index: int, analyzer: Analyzer):
         currentSectionObjs.append(obj)
         currentSectionCounter += 1
 
-    analyzer.finalizeSection(currentSectionCounter, currentSectionObjs, currentSectionId)
+    if len(currentSectionObjs) > 0:
+        analyzer.finalizeSection(currentSectionCounter, currentSectionObjs, currentSectionId)

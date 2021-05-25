@@ -37,7 +37,7 @@ def configureArgs():
         required=True,
         help='Analyzer module name.'
     )
-    parsed_args, unknown = parser.parse_known_args()
+    parsed_args, _ = parser.parse_known_args()
 
     minPageLines = parsed_args.min_page_lines
     emotion = parsed_args.emotion
