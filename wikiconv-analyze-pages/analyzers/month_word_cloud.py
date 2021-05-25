@@ -62,6 +62,8 @@ class MonthWordCloud(Analyzer):
         wordsByEmotions: Union[Dict[emotion_lexicon.Emotions, List[str]], None] = None
         for obj in currentSectionObjs:
             wordsByEmotions = emotion_lexicon.separateWordsByEmotion(obj['cleanedContent'], wordsByEmotions)
+        if len(wordsByEmotions[emotion_lexicon.Emotions.ANY]) <= 0:
+            return
 
         fig, axs = plt.subplots(nrows=6, ncols=2, figsize=(40,70))
         fig.suptitle(f"{month[:4]}-{month[4:]}", fontsize=100)
