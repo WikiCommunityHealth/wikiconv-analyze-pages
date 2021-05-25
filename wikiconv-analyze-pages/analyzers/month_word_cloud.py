@@ -58,13 +58,14 @@ class MonthWordCloud(Analyzer):
             return
         print("------" + month)
 
+
         wordsByEmotions: Union[Dict[emotion_lexicon.Emotions, List[str]], None] = None
         for obj in currentSectionObjs:
             wordsByEmotions = emotion_lexicon.separateWordsByEmotion(obj['cleanedContent'], wordsByEmotions)
 
         fig, axs = plt.subplots(nrows=6, ncols=2, figsize=(40,70))
-        fig.suptitle(month)
-        fig.tight_layout()
+        fig.suptitle(f"{month[:4]}-{month[4:]}", fontsize=100)
+        # fig.tight_layout()
 
         for i, e in enumerate(emotion_lexicon.Emotions):
             x = i // 2
