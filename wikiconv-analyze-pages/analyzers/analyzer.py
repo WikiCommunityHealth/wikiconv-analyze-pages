@@ -34,5 +34,5 @@ class Analyzer(ABC):
     def finalize(self) -> None:
         return
 
-    def fileStart(self, number: int) -> None:
+    def fileStart(self, number: int, filename: str) -> None:
         return

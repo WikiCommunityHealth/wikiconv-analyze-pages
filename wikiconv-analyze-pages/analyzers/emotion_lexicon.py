@@ -161,7 +161,7 @@ class EmotionLexiconAnalyzer(Analyzer):
                 values=[title] + emotionsDataPercentage[e]
             )
 
-    def fileStart(self, number: int) -> None:
+    def fileStart(self, number: int, filename: str) -> None:
         self.closeFiles()
 
         newFilenameInt = EmotionLexiconAnalyzer.outputPath / (f"global/page-emotion-lexicon-global-int-{str(number).zfill(4)}.tsv")

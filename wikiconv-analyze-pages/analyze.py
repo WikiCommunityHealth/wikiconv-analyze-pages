@@ -42,7 +42,7 @@ def analyzeFileListSync(filesAndIndex, analyzerName: str):
 def analyzeFile(inputFile: Path, index: int, analyzer: Analyzer):
     global analysisCompleted
 
-    analyzer.fileStart(index)
+    analyzer.fileStart(index, os.path.basename(inputFile))
     currentSectionId = -1
     currentSectionCounter = 0
     currentSectionObjs: List[Mapping[str, Any]] = []
