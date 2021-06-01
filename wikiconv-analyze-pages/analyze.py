@@ -50,10 +50,11 @@ def analyzeFile(inputFile: Path, index: int, analyzer: Analyzer):
 
     for line in file_utils.open_text_file(str(inputFile)):
         # GET LINE
-        [sortingFields, obj] = line.split("\t")
+        #TODO: fix sta roba qua
+        # [sortingFields, obj] = line.split("\t")
+        # sectionId = int(sortingFields.split(' ')[0])
+        [sortingFields, obj] = line.split(" ", 1)
         sectionId = int(sortingFields.split(' ')[0])
-        # obj = line
-        # sectionId = 1
 
         # ON CHANGE PAGE
         if sectionId != currentSectionId:
