@@ -50,10 +50,7 @@ def analyzeFile(inputFile: Path, index: int, analyzer: Analyzer):
 
     for line in file_utils.open_text_file(str(inputFile)):
         # GET LINE
-        #TODO: fix sta roba qua
-        # [sortingFields, obj] = line.split("\t")
-        # sectionId = int(sortingFields.split(' ')[0])
-        [sortingFields, obj] = line.split(" ", 1)
+        [sortingFields, obj] = line.split("\t")
         sectionId = -2
         try: 
             sectionId = int(sortingFields.split(' ')[0])
