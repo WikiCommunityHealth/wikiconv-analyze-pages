@@ -29,7 +29,7 @@ class Minify(Analyzer):
             description='Graph snapshot features extractor.',
         )
         parser.add_argument(
-            '--output_dir_path',
+            '--output-dir-path',
             metavar='OUTPUT_DIR',
             type=Path,
             required=True,
