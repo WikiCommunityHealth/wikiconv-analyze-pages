@@ -9,7 +9,7 @@ from ..utils.emotion_lexicon import initEmotionLexicon, countEmotionsOfText, Emo
 
 class Minify(Analyzer):
     __file = None
-    __outputPath: str = '.'
+    output_dir_path: str = '.'
     __outputCounter = 0
     __compression = None
     lang = 'en'
@@ -50,7 +50,7 @@ class Minify(Analyzer):
             help='Language.',
         )
         parsed_args, _ = parser.parse_known_args()
-        Minify.__outputPath = parsed_args.output_dir_path
+        Minify.output_dir_path = parsed_args.output_dir_path
         Minify.__compression = parsed_args.output_compression
         Minify.lang = parsed_args.lang
 
@@ -78,7 +78,7 @@ class Minify(Analyzer):
     def fileStart(self, number: int, filename: str) -> None:
         if self.__file is not None:
             self.__file.close()
-        newFilename = str(Path(self.__outputPath) / (f"min-{os.path.splitext(filename)[0]}"))
+        newFilename = str(Path(self.output_dir_path) / (f"min-{os.path.splitext(filename)[0]}"))
         self.__file = file_utils.output_writer(path=newFilename, compression=self.__compression)
         self.__outputCounter += 1
 
