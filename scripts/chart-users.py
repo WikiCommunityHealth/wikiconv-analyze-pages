@@ -66,9 +66,9 @@ assData = data["assolute"]
 print("File loaded")
 
 # %% plot fn
-def plotta(dataLines: Dict[str, Dict[str, Any]], emotionsToPlot: List[str], vols: Dict[str, Any], useLifeMonth:bool = False):
+def plotta(dataLines: Dict[str, Dict[str, Any]], emotionsToPlot: List[str], vols: Dict[str, Any], useLifeMonth:bool = True):
 
-    f = plt.figure(figsize=(60, len(data) * 10))
+    f = plt.figure(figsize=(40, len(data) * 10))
     for i, em in enumerate(emotionsToPlot):
         ax = f.add_subplot(len(emToPlot), 1, i + 1)
         ax.title.set_text(em)
@@ -82,8 +82,8 @@ def plotta(dataLines: Dict[str, Dict[str, Any]], emotionsToPlot: List[str], vols
             else:
                 ys = [dataLines[lineName]["months"][m.strftime('%Y-%m')] for m in months]
             ax.plot(
-                months,
-                list(map(lambda m: m[emIndex], ys)),
+                months[:-10],
+                list(map(lambda m: m[emIndex], ys))[:-10],
                 'k-', color=linecolor[lineName][0], label=lineName
             )
 
@@ -98,8 +98,8 @@ def plotta(dataLines: Dict[str, Dict[str, Any]], emotionsToPlot: List[str], vols
             barYs = [vols["months"][m.strftime('%Y-%m')] for m in months]
         barYs = list(map(lambda m: m[emIndex], barYs))
         axTwin.bar(
-            cast(List, months),
-            barYs,
+            cast(List, months)[:-10],
+            barYs[:-10],
             15, color='gainsboro', label='Volumes'
         )
         axTwin.set_ylim(0, max(barYs) / 1)
@@ -107,9 +107,9 @@ def plotta(dataLines: Dict[str, Dict[str, Any]], emotionsToPlot: List[str], vols
 
     plt.gcf().autofmt_xdate()
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
-    plt.gca().xaxis.set_major_locator(mdates.MonthLocator(interval=3))
-    plt.show()
-    # plt.savefig('../charts/' + name, bbox_inches='tight')
+    plt.gca().xaxis.set_major_locator(mdates.MonthLocator(interval=6))
+    # plt.show()
+    plt.savefig('../charts/userem.png', bbox_inches='tight')
     plt.close()
 
 # %% gender
@@ -118,7 +118,7 @@ dataLines = {
     "female": normalizedData['genders']['female'],
     "unknown": normalizedData['genders']['unknown'],
 }
-plotta(dataLines, emToPlot, assData['all'], True)
+plotta(dataLines, emToPlot, assData['all'])
 
 # %% roles
 dataLines = {

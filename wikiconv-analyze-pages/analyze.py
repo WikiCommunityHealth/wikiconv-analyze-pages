@@ -54,7 +54,11 @@ def analyzeFile(inputFile: Path, index: int, analyzer: Analyzer):
         # [sortingFields, obj] = line.split("\t")
         # sectionId = int(sortingFields.split(' ')[0])
         [sortingFields, obj] = line.split(" ", 1)
-        sectionId = int(sortingFields.split(' ')[0])
+        sectionId = -2
+        try: 
+            sectionId = int(sortingFields.split(' ')[0])
+        except:
+            print(f"Couldn't parse id, using -2, for {sortingFields}")
 
         # ON CHANGE PAGE
         if sectionId != currentSectionId:

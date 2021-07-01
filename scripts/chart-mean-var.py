@@ -43,7 +43,7 @@ def plotta( months,
             showOnly: List[Union[str, None]] = [None],
             name: str = 'c.jpeg'
         ):
-    f = plt.figure(figsize=(100, len(showOnly) * 15))
+    f = plt.figure(figsize=(40, len(showOnly) * 6))
 
     for i, emotion in enumerate(showOnly):
         ax = f.add_subplot(len(showOnly), 1, i + 1)
@@ -73,8 +73,8 @@ def plotta( months,
     plt.gcf().autofmt_xdate()
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
     plt.gca().xaxis.set_major_locator(mdates.MonthLocator(interval=3))
-    plt.show()
-    # plt.savefig('../charts/' + name, bbox_inches='tight')
+    # plt.show()
+    plt.savefig('../charts/' + name, bbox_inches='tight')
     plt.close()
 print("Fn loaded")
 
@@ -124,7 +124,7 @@ print("Done")
 
 # %% basic charts
 print(f"Raw data {lang}")
-plotta(months, ys, varss, vol=vol, showOnly=['negative', 'positive'], name=f"{lang}-0-raw-data.jpeg")
+plotta(months, ys, varss, vol=vol, showOnly=['joy', 'anger', 'fear', 'sadness'], name=f"{lang}-0-raw-data.jpeg")
 # plotta(months, meanOverVar, vol=vol, showOnly=showAll)
 # plotta(months, meanOverVar, vol=vol, showOnly=showAll)
 print("Std score")
