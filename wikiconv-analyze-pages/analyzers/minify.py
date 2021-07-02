@@ -61,6 +61,7 @@ class Minify(Analyzer):
         
         if self.__file is not None:
             for obj in currentSectionObjs:
+                # if obj['type'] == 'ADDITION' or obj['type'] == 'CREATION':
                 c = countEmotionsOfText(obj['cleanedContent'])
                 minObj = {
                     'id': obj['id'],

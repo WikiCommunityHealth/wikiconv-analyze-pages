@@ -130,5 +130,9 @@ dmypy.json
 
 LIWC*
 assets/NRC*
+assets/gender
 times*.txt
 temp
+dataset
+genders
+json
