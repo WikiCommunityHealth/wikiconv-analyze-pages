@@ -95,6 +95,8 @@ def initEmotionLexicon(lang = 'en'):
         for l in lines[1:]:
             d = l.strip('\n').split(',')
             term = d[langCol]
+            if lang == 'it' and (term == 'mar' or term == 'ago'):
+                continue
             emotions = [Emotions.ANY]
             for i, x in enumerate(d[-10:]):
                 if x == "1":
