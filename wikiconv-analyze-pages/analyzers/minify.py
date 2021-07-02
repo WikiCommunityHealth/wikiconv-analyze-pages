@@ -61,20 +61,20 @@ class Minify(Analyzer):
         
         if self.__file is not None:
             for obj in currentSectionObjs:
-                # if obj['type'] == 'ADDITION' or obj['type'] == 'CREATION':
-                c = countEmotionsOfText(obj['cleanedContent'])
-                minObj = {
-                    'id': obj['id'],
-                    'type': obj['type'],
-                    'pageTitle': obj['pageTitle'],
-                    'pageId': obj['pageId'],
-                    'pageId': obj['pageId'],
-                    'user': obj['user'] if 'user' in obj else None,
-                    'timestamp': obj['timestamp'],
-                    'pageNamespace': obj['pageNamespace'],
-                    'emotions': f"{c[Emotions.ANY]},{c[Emotions.POSITIVE]},{c[Emotions.NEGATIVE]},{c[Emotions.ANGER]},{c[Emotions.ANTICIPATION]},{c[Emotions.DISGUST]},{c[Emotions.FEAR]},{c[Emotions.JOY]},{c[Emotions.SADNESS]},{c[Emotions.SURPRISE]},{c[Emotions.TRUST]},"
-                }
-                self.__file.write(f"{currentSectionId}\t{json.dumps(minObj)}\n")
+                if obj['type'] == 'ADDITION' or obj['type'] == 'CREATION':
+                    c = countEmotionsOfText(obj['cleanedContent'])
+                    minObj = {
+                        'id': obj['id'],
+                        'type': obj['type'],
+                        'pageTitle': obj['pageTitle'],
+                        'pageId': obj['pageId'],
+                        'pageId': obj['pageId'],
+                        'user': obj['user'] if 'user' in obj else None,
+                        'timestamp': obj['timestamp'],
+                        'pageNamespace': obj['pageNamespace'],
+                        'emotions': f"{c[Emotions.ANY]},{c[Emotions.POSITIVE]},{c[Emotions.NEGATIVE]},{c[Emotions.ANGER]},{c[Emotions.ANTICIPATION]},{c[Emotions.DISGUST]},{c[Emotions.FEAR]},{c[Emotions.JOY]},{c[Emotions.SADNESS]},{c[Emotions.SURPRISE]},{c[Emotions.TRUST]},"
+                    }
+                    self.__file.write(f"{currentSectionId}\t{json.dumps(minObj)}\n")
 
     def fileStart(self, number: int, filename: str) -> None:
         if self.__file is not None:
