@@ -23,6 +23,9 @@ class Analyzer(ABC):
     def filterObj(self, obj: Mapping[str, Any]) -> bool:
         return True
 
+    def online(self, sortingField: str, obj: Mapping[str, Any]):
+        return
+
     def finalizeSection(
         self,
         sectionCounter: int,

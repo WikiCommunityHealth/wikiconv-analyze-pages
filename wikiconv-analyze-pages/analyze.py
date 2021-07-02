@@ -48,14 +48,20 @@ def analyzeFile(inputFile: Path, index: int, analyzer: Analyzer):
     currentSectionObjs: List[Mapping[str, Any]] = []
 
 
-    for line in file_utils.open_text_file(str(inputFile)):
+    file = file_utils.open_text_file(str(inputFile))
+    for line in file:
         # GET LINE
         [sortingFields, obj] = line.split("\t")
+
+        # analyzer.online(sortingFields.split(' ')[0], json.loads(obj))
+        # continue
+
         sectionId = -2
         try: 
             sectionId = int(sortingFields.split(' ')[0])
         except:
             print(f"Couldn't parse id, using -2, for {sortingFields}")
+
 
         # ON CHANGE PAGE
         if sectionId != currentSectionId:
@@ -79,5 +85,6 @@ def analyzeFile(inputFile: Path, index: int, analyzer: Analyzer):
         currentSectionObjs.append(obj)
         currentSectionCounter += 1
 
+    file.close()
     if len(currentSectionObjs) > 0:
         analyzer.finalizeSection(currentSectionCounter, currentSectionObjs, currentSectionId)
