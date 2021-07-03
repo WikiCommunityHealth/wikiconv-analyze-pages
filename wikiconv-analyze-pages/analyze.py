@@ -68,6 +68,7 @@ def analyzeFile(inputFile: Path, index: int, analyzer: Analyzer):
             completed = analyzer.finalizeSection(currentSectionCounter, currentSectionObjs, currentSectionId)
             currentSectionId = sectionId
             currentSectionCounter = 0
+            currentSectionObjs.clear()
             currentSectionObjs = []
 
             if completed == True or analysisCompleted == True:
