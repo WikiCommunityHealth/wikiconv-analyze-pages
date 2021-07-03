@@ -53,7 +53,7 @@ def analyzeFile(inputFile: Path, index: int, analyzer: Analyzer):
         # GET LINE
         [sortingFields, obj] = line.split("\t")
 
-        # analyzer.online(sortingFields.split(' ')[0], json.loads(obj))
+        # analyzer.finalizeSection(1, [json.loads(obj)], int(sortingFields.split(' ')[0]))
         # continue
 
         sectionId = -2
