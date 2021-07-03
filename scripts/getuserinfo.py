@@ -12,7 +12,7 @@ with open(f'{lingua}.tsv', 'w') as f:
         username = x['username']
         bot = x['is_bot']
         last = 'None'
-        if 'last_event_timestamp' in x['activity']['total']:
+        if 'activity' in x and 'total' in x['activity'] and 'last_event_timestamp' in x['activity']['total']:
             last = x['activity']['total']['last_event_timestamp'].strftime("%Y-%m-%dT%H:%M:%SZ")
         gr = ','.join(x['groups']['current'])
 
