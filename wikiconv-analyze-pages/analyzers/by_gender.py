@@ -7,7 +7,7 @@ import numpy as np
 from pathlib import Path
 from datetime import datetime
 from dateutil.relativedelta import relativedelta, MO
-from typing import Any, Dict, List, Mapping, Union
+from typing import Any, Counter, Dict, List, Mapping, Union
 from .analyzer import Analyzer
 from ..utils import file_utils
 from ..utils.emotion_lexicon import initEmotionLexicon, countEmotionsOfText, Emotions, getEmotionName
@@ -18,6 +18,7 @@ class ByGender(Analyzer):
     file = 'delme.json'
 
     userGenderDic = {}
+    roles = set()
     counter = {}
 
     @staticmethod
@@ -36,6 +37,9 @@ class ByGender(Analyzer):
             'male': ByGender.getEmptySectionCounter(),
             'female': ByGender.getEmptySectionCounter(),
             'unknown': ByGender.getEmptySectionCounter(),
+            'autopatrolled': ByGender.getEmptySectionCounter(),
+            'rollbacker': ByGender.getEmptySectionCounter(),
+            'sysop': ByGender.getEmptySectionCounter(),
         }
         return c
         # c["gender"] = {
@@ -46,7 +50,7 @@ class ByGender(Analyzer):
 
     @staticmethod
     def loadGenderDic():
-        ByGender.userGenderDic = {}
+        genders = {}
         with open(f'./assets/genders/genders-{ByGender.lang}.tsv') as f:
             for l in f:
                 info = l.strip('\n').split('\t')
@@ -55,7 +59,27 @@ class ByGender(Analyzer):
                     g = 'M'
                 elif info[2] == 'female':
                     g = 'F'
-                ByGender.userGenderDic[int(info[0])] = g
+                genders[int(info[0])] = g
+
+        ByGender.roles = set()
+        c = Counter()
+        ByGender.userGenderDic = {}
+        with open(f'./assets/roles/{ByGender.lang}.tsv') as f:
+            for l in f:
+                info = l.strip('\n').split('\t')
+                id = int(info[0])
+                currRoles = info[4].split(',')
+                ByGender.userGenderDic[id] = {
+                    "gender": genders[id] if id in genders else 'U',
+                    "isBot": info[2] == 'True',
+                    "lasteEdit": datetime.strptime(info[3], "%Y-%m-%dT%H:%M:%SZ") if info[3] != 'None' else None,
+                    "roles": currRoles
+                }
+                c.update(currRoles)
+                for r in currRoles:
+                    ByGender.roles.add(r)
+        print("User dic loaded")
+        print(c)
 
     def __init__(self):
         self.configureArgs()
@@ -104,10 +128,11 @@ class ByGender(Analyzer):
         if currentSectionId <= 0:
             return
 
-        # if len(ByGender.counter["all"]) > 2:
-            # return
-
-
+        userInfo = None
+        if currentSectionId in ByGender.userGenderDic:
+            userInfo =  ByGender.userGenderDic[int(currentSectionId)]
+            if userInfo["isBot"]:
+                return
 
         firstDate = self.getDate(currentSectionObjs[0])
         mDiff = self.monthDiff(
@@ -139,14 +164,23 @@ class ByGender(Analyzer):
 
         ByGender.addToSection('all', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
 
-        if currentSectionId in ByGender.userGenderDic:
-            g =  ByGender.userGenderDic[currentSectionId]
+        if userInfo is not None:
+            g =  userInfo['gender']
             if g == 'M':
                 ByGender.addToSection('male', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
             elif g == 'F':
                 ByGender.addToSection('female', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
             else:
                 ByGender.addToSection('unknown', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+
+            if 'autopatrolled' in userInfo['roles']:
+                ByGender.addToSection('autopatrolled', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+            if 'rollbacker' in userInfo['roles']:
+                ByGender.addToSection('rollbacker', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+            if 'sysop' in userInfo['roles']:
+                print("FACENFO sysop")
+                ByGender.addToSection('sysop', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+
 
 
 
