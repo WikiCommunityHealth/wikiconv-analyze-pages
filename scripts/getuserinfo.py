@@ -7,7 +7,7 @@ lingua = sys.argv[1]
 print(lingua)
 
 with open(f'{lingua}.tsv', 'w') as f:
-    for x in tqdm(MongoClient(port=27017)['wikiusers'][f'{lingua}wiki'].find()):
+    for x in tqdm(MongoClient(port=27017)['wikiusers'][f'{lingua}wiki_raw'].find()):
         id = x['id']
         username = x['username']
         bot = x['is_bot']

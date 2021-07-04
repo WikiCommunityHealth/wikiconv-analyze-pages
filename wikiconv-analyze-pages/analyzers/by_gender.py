@@ -178,7 +178,6 @@ class ByGender(Analyzer):
             if 'rollbacker' in userInfo['roles']:
                 ByGender.addToSection('rollbacker', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
             if 'sysop' in userInfo['roles']:
-                print("FACENFO sysop")
                 ByGender.addToSection('sysop', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
 
 
