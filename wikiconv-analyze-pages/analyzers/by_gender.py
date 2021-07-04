@@ -201,7 +201,7 @@ class ByGender(Analyzer):
                 toAppend = ByGender.normalize(em)
                 if toAppend is not None:
                     ByGender.counter[section]["monthStart"][i].append(toAppend)
-                    ByGender.counter[section]["monthEnd"][mDiff - 1 - i].append(toAppend)
+                    ByGender.counter[section]["monthEnd"][-i].append(toAppend)
 
             for i, em in enumerate(monthsEmotionsI):
                 toAppend = ByGender.normalize(em)
@@ -233,7 +233,7 @@ class ByGender(Analyzer):
             res[section] = {
                 "all": self.getMeanVarList(ByGender.counter[section]["all"]),
                 "monthStart": [ self.getMeanVarList(x) for x in ByGender.counter[section]["monthStart"] ],
-                "monthEnd": [ self.getMeanVarList(x) for x in ByGender.counter[section]["monthEnd"] ],
+                "monthEnd": [ self.getMeanVarList(x) for x in ByGender.counter[section]["monthEnd"] ][::-1],
                 "month": [ self.getMeanVarList(x) for x in ByGender.counter[section]["month"] ]
             }
 
