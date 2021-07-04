@@ -37,6 +37,7 @@ psycopg2-binary = "^2.8.6"
 SQLAlchemy = "^1.4.11"
 pymongo = "^3.11.4"
 tqdm = "^4.61.1"
+joblib = "^1.0.1"
 
 [tool.poetry.dev-dependencies]
 autopep8 = "^1.5.7"

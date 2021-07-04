@@ -7,6 +7,7 @@ from .utils import file_utils
 from .analyzers import Analyzer
 import concurrent.futures
 from .analyzers import getAnalyzer, getAnalyzerClass
+from joblib import Parallel, delayed
 
 
 analysisCompleted = False
@@ -17,6 +18,10 @@ def analyze(files: List[Path], analyzerName: str, parallel = False, max_workers=
 
     filesAndIndex = enumerate(files)
     if parallel:
+        # Parallel(n_jobs=max_workers)(
+        #     delayed(analyzeFileListSync)([f], analyzerName)
+        #     for f in filesAndIndex
+        # )
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             iterator = executor.map(lambda f: analyzeFileListSync([f], analyzerName), filesAndIndex)
             list(iterator)
