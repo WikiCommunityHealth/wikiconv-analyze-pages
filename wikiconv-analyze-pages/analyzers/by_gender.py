@@ -54,6 +54,8 @@ class ByGender(Analyzer):
         with open(f'./assets/genders/genders-{ByGender.lang}.tsv') as f:
             for l in f:
                 info = l.strip('\n').split('\t')
+                if info[1] == 'NOT FOUND':
+                    continue
                 g = 'U'
                 if info[2] == 'male':
                     g = 'M'
