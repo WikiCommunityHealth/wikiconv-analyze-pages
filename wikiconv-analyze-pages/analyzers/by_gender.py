@@ -176,7 +176,7 @@ class ByGender(Analyzer):
             else:
                 ByGender.addToSection('unknown', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
 
-            if 'autopatrolled' in userInfo['roles']:
+            if 'autopatrolled' in userInfo['roles'] or 'autoreviewer' in userInfo['roles']:
                 ByGender.addToSection('autopatrolled', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
             if 'rollbacker' in userInfo['roles']:
                 ByGender.addToSection('rollbacker', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)

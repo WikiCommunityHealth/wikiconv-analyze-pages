@@ -127,13 +127,13 @@ plt.setp(axs, xticks=xAx, xticklabels=x)
 for i, data in  enumerate(users):
 
     unknown = [ data[0]["all"]["all"]["mean"][e] for e in ems ]
-    male = [ data[0]["autopatrolled"]["all"]["mean"][e] for e in ems ]
-    female = [ data[0]["sysop"]["all"]["mean"][e] for e in ems ]
+    aut = [ data[0]["autopatrolled"]["all"]["mean"][e] for e in ems ]
+    admin = [ data[0]["sysop"]["all"]["mean"][e] for e in ems ]
 
     axs[i].set(xlabel=data[1], ylabel='Percentage of emotions')
     axs[i].bar(xAx - 0.3, unknown, 0.3, label = 'All', hatch="//", edgecolor='black')
-    axs[i].bar(xAx, female, 0.3, label = 'Autop Patrolled', hatch="xx", edgecolor='black')
-    axs[i].bar(xAx + 0.3, male, 0.3, label = 'Admins', hatch="++", edgecolor='black')
+    axs[i].bar(xAx, aut, 0.3, label = 'Autop Patrolled', hatch="xx", edgecolor='black')
+    axs[i].bar(xAx + 0.3, admin, 0.3, label = 'Admins', hatch="++", edgecolor='black')
 
 for ax in axs.flat:
     ax.label_outer()
@@ -151,19 +151,20 @@ def plotLinesAndBars(
     emotions = ems
 ):
     x = list(range(0, max(len(line) for line in lines)))
+    x = months[36:240]
     for line, e in zip(lines, emotions):
         ax.plot(x, line, 'k-', label=name[e], color=emotionColor[e][0])
-    ax.legend(loc='upper center')
-    ax.set_xlabel('Month from first activity')
+    ax.legend()
+    # ax.set_xlabel('Month from first activity')
 
-    axTwin = ax.twinx()
-    ax.patch.set_visible(False)
-    axTwin.patch.set_visible(True)
-    ax.set_zorder(axTwin.get_zorder() + 1)
-    axTwin.bar(x, bars, 0.5, color='gainsboro', label='Volumes' )
-    axTwin.set_ylim(0, max(bars) / 1)
-    if not hideLabel:
-        axTwin.set_ylabel('Number of active users')
+    # axTwin = ax.twinx()
+    # ax.patch.set_visible(False)
+    # axTwin.patch.set_visible(True)
+    # ax.set_zorder(axTwin.get_zorder() + 1)
+    # axTwin.bar(x, bars, 0.5, color='gainsboro', label='Volumes' )
+    # axTwin.set_ylim(0, max(bars) / 1)
+    # if not hideLabel:
+    #     axTwin.set_ylabel('Number of active users')
 
     # plt.gcf().autofmt_xdate()
     # plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
@@ -172,9 +173,9 @@ def plotLinesAndBars(
 
 
 def plottaLang(ax, title, dataset, xField, role='all', hideLabel = False):
-    lines = [ np.array([ x['mean'][e] for x in dataset[role][xField][:150] ]) for e in ems ]
+    lines = [ np.array([ x['mean'][e] for x in dataset[role][xField][36:240] ]) for e in ems ]
     lines = [ (line - np.mean(line)) / np.var(line) for line in lines ]
-    bars = [ x['n'] for x in dataset[role][xField][:150] ]
+    bars = [ x['n'] for x in dataset[role][xField][36:240] ]
 
     ax.title.set_text(title)
     ax.get_yaxis().set_visible(False)
@@ -250,20 +251,20 @@ def plot4(reply: bool, xField, title, name='unamed.jpg'):
     f = plt.figure(figsize=(15, 7))
     fig, axs = plt.subplots(2, 2, figsize=(15,8))
     d = dataReplyEn if reply else dataUserEn
-    plottaLang(axs[0][0], 'English', d, xField, 'all', True)
-    plottaLang(axs[0][1], 'Spanish', d, xField, 'all')
-    plottaLang(axs[1][0], 'Italian', d, xField, 'all', True)
-    plottaLang(axs[1][1], 'Catalan', d, xField, 'all')
+    plottaLang(axs[0][0], 'English', dataReplyEn if reply else dataUserEn, xField, 'all', True)
+    plottaLang(axs[0][1], 'Spanish', dataReplyEs if reply else dataUserEs, xField, 'all')
+    plottaLang(axs[1][0], 'Italian', dataReplyIt if reply else dataUserIt, xField, 'all', True)
+    plottaLang(axs[1][1], 'Catalan', dataReplyCa if reply else dataUserCa, xField, 'all')
     for ax in axs.flat:
         ax.label_outer()
-    fig.suptitle(title)
+    # fig.suptitle(title)
     plt.tight_layout()
     plt.savefig(name)
 
 # %% users emotion
 # plot4(False, 'monthStart', 'Emotions expressed by users from their first action', 'mstartuser.jpg')
 # plot4(True, 'monthStart', 'Emotions received by users from their first action', 'mstartreply.jpg')
-plot4(False, 'month', 'User emotion written monthEnd')
+plot4(False, 'month', 'User emotion written monthEnd', 'time.jpg')
 
 # gender(False, 'monthStart', 'La locura')
 # roles(False, 'monthStart', 'La locura')
