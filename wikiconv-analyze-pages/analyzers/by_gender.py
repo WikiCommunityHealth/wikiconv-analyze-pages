@@ -12,6 +12,7 @@ from .analyzer import Analyzer
 from ..utils import file_utils
 from ..utils.emotion_lexicon import initEmotionLexicon, countEmotionsOfText, Emotions, getEmotionName
 import json
+import random
 
 class ByGender(Analyzer):
     lang = 'en'
@@ -201,7 +202,7 @@ class ByGender(Analyzer):
                 toAppend = ByGender.normalize(em)
                 if toAppend is not None:
                     ByGender.counter[section]["monthStart"][i].append(toAppend)
-                    ByGender.counter[section]["monthEnd"][-i].append(toAppend)
+                    ByGender.counter[section]["monthEnd"][( - mDiff) + i].append(toAppend)
 
             for i, em in enumerate(monthsEmotionsI):
                 toAppend = ByGender.normalize(em)
@@ -216,7 +217,6 @@ class ByGender(Analyzer):
             x[0] = a
             return x
         return None
-
 
     def getMeanVarList(self, x):
         l = len(x)
