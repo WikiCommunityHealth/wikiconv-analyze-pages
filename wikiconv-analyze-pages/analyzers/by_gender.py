@@ -159,8 +159,8 @@ class ByGender(Analyzer):
         notEditingFor = self.monthDiff(endOfTime, lastDate)
 
         userEmotions = np.array([0] * 11)
-        monthsEmotions = [np.array([0] * 11)] * mDiff
-        monthsEmotionsI = [np.array([0] * 11)] * (mDiff + 1)
+        monthsEmotions = [ np.array([0] * 11) for x in range(0, mDiff + 1) ]
+        monthsEmotionsI = [ np.array([0] * 11) for x in range(0, mDiff + 1) ]
 
         for obj in currentSectionObjs:
             if obj['type'][0] == 'A' or obj['type'][0] == 'C':

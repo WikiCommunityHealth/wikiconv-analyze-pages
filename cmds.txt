@@ -1,0 +1,12 @@
+TODO:
+python -m wikiconv-analyze-pages by-gender /mnt/fluiddata/toscan/wikiconv/min/user/en/min-* --json json/en-user-dropoff.json --lang en
+
+DONE:
+python -m wikiconv-analyze-pages by-gender /mnt/fluiddata/toscan/wikiconv/min/user/es/min-* --json json/es-user-dropoff.json --lang es
+python -m wikiconv-analyze-pages by-gender /mnt/fluiddata/toscan/wikiconv/min/user/it/min-* --json json/it-user-dropoff.json --lang it
+python -m wikiconv-analyze-pages by-gender /mnt/fluiddata/toscan/wikiconv/min/user/ca/min-* --json json/ca-user-dropoff.json --lang ca
+
+python -m wikiconv-analyze-pages by-gender /mnt/fluiddata/toscan/wikiconv/min/reply/en/min-* --json json/en-reply-dropoff.json --lang en
+python -m wikiconv-analyze-pages by-gender /mnt/fluiddata/toscan/wikiconv/min/reply/es/min-* --json json/es-reply-dropoff.json --lang es
+python -m wikiconv-analyze-pages by-gender /mnt/fluiddata/toscan/wikiconv/min/reply/it/min-* --json json/it-reply-dropoff.json --lang it
+python -m wikiconv-analyze-pages by-gender /mnt/fluiddata/toscan/wikiconv/min/reply/ca/min-* --json json/ca-reply-dropoff.json --lang ca

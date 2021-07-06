@@ -68,23 +68,24 @@ dataReplyIt = {}
 dataReplyEs = {}
 dataReplyEn = {}
 
-with open(f'../json/ca-user.json') as f:
-    dataUserCa = json.load(f)
-with open(f'../json/it-user.json') as f:
-    dataUserIt = json.load(f)
-with open(f'../json/es-user.json') as f:
-    dataUserEs = json.load(f)
-with open(f'../json/en-user.json') as f:
-    dataUserEn = json.load(f)
+with open('../json/ca-user.json') as f, open('../json/ca-user-dropoff.json') as f2:
+    dataUserCa = { **json.load(f), **json.load(f2) }
+with open('../json/it-user.json') as f, open('../json/it-user-dropoff.json') as f2:
+    dataUserIt = { **json.load(f), **json.load(f2) }
+with open('../json/es-user.json') as f, open('../json/es-user-dropoff.json') as f2:
+    dataUserEs = { **json.load(f), **json.load(f2) }
+with open('../json/en-user-new.json') as f, open('../json/en-user-dropoff.json') as f2:
+    dataUserEn = { **json.load(f), **json.load(f2) }
 
-with open(f'../json/ca-reply.json') as f:
-    dataReplyCa = json.load(f)
-with open(f'../json/it-reply.json') as f:
-    dataReplyIt = json.load(f)
-with open(f'../json/es-reply.json') as f:
-    dataReplyEs = json.load(f)
-with open(f'../json/en-reply.json') as f:
-    dataReplyEn = json.load(f)
+with open('../json/ca-reply.json') as f, open('../json/ca-reply-dropoff.json') as f2:
+    dataReplyCa = { **json.load(f), **json.load(f2) }
+with open('../json/it-reply.json') as f, open('../json/it-reply-dropoff.json') as f2:
+    dataReplyIt = { **json.load(f), **json.load(f2) }
+with open('../json/es-reply.json') as f, open('../json/es-reply-dropoff.json') as f2:
+    dataReplyEs = { **json.load(f), **json.load(f2) }
+with open('../json/en-reply-new.json') as f, open('../json/en-reply-dropoff.json') as f2:
+    dataReplyEn = { **json.load(f), **json.load(f2) }
+
 
 users = [ (dataUserEn, "English"), (dataUserEs, "Spanish"), (dataUserIt, "Italian"), (dataUserCa, "Catalan")]
 reply = [ (dataReplyEn, "English"), (dataReplyEs, "Spanish"), (dataReplyIt, "Italian"), (dataReplyCa, "Catalan")]
@@ -142,6 +143,30 @@ plt.legend()
 plt.tight_layout()
 fig.savefig("emroles.jpg")
 
+
+# %% dropoff
+fig, axs = plt.subplots(1, 4, figsize=(17,4))
+# fig.suptitle("Percentage of emotions by user gender for different emotions.")
+plt.setp(axs, xticks=xAx, xticklabels=x)
+
+for i, data in  enumerate(users):
+
+    unknown = [ data[0]["all"]["all"]["mean"][e] for e in ems ]
+    aut = [ data[0]["autopatrolled"]["all"]["mean"][e] for e in ems ]
+    admin = [ data[0]["sysop"]["all"]["mean"][e] for e in ems ]
+
+    axs[i].set(xlabel=data[1], ylabel='Percentage of emotions')
+    axs[i].bar(xAx - 0.3, unknown, 0.3, label = 'All', hatch="//", edgecolor='black')
+    axs[i].bar(xAx, aut, 0.3, label = 'Autop Patrolled', hatch="xx", edgecolor='black')
+    axs[i].bar(xAx + 0.3, admin, 0.3, label = 'Admins', hatch="++", edgecolor='black')
+
+for ax in axs.flat:
+    ax.label_outer()
+plt.legend()
+# plt.show()
+plt.tight_layout()
+fig.savefig("emroles.jpg")
+
 # %% over time
 def plotLinesAndBars(
     ax,
@@ -151,7 +176,7 @@ def plotLinesAndBars(
     emotions = ems
 ):
     x = list(range(0, max(len(line) for line in lines)))
-    x = months[36:240]
+    # x = months[36:240]
     for line, e in zip(lines, emotions):
         ax.plot(x, line, 'k-', label=name[e], color=emotionColor[e][0])
     ax.legend()
@@ -173,9 +198,9 @@ def plotLinesAndBars(
 
 
 def plottaLang(ax, title, dataset, xField, role='all', hideLabel = False):
-    lines = [ np.array([ x['mean'][e] for x in dataset[role][xField][36:240] ]) for e in ems ]
-    lines = [ (line - np.mean(line)) / np.var(line) for line in lines ]
-    bars = [ x['n'] for x in dataset[role][xField][36:240] ]
+    lines = [ np.array([ x['mean'][e] for x in dataset[role][xField][:150] ]) for e in ems ]
+    lines = [ (line - np.mean(line))  for line in lines ]
+    bars = [ x['n'] for x in dataset[role][xField][:150] ]
 
     ax.title.set_text(title)
     ax.get_yaxis().set_visible(False)
@@ -251,10 +276,10 @@ def plot4(reply: bool, xField, title, name='unamed.jpg'):
     f = plt.figure(figsize=(15, 7))
     fig, axs = plt.subplots(2, 2, figsize=(15,8))
     d = dataReplyEn if reply else dataUserEn
-    plottaLang(axs[0][0], 'English', dataReplyEn if reply else dataUserEn, xField, 'all', True)
-    plottaLang(axs[0][1], 'Spanish', dataReplyEs if reply else dataUserEs, xField, 'all')
-    plottaLang(axs[1][0], 'Italian', dataReplyIt if reply else dataUserIt, xField, 'all', True)
-    plottaLang(axs[1][1], 'Catalan', dataReplyCa if reply else dataUserCa, xField, 'all')
+    plottaLang(axs[0][0], 'English', dataReplyEn if reply else dataUserEn, xField, '1Y', True)
+    plottaLang(axs[0][1], 'Spanish', dataReplyEs if reply else dataUserEs, xField, '1Y')
+    plottaLang(axs[1][0], 'Italian', dataReplyIt if reply else dataUserIt, xField, '1Y', True)
+    plottaLang(axs[1][1], 'Catalan', dataReplyCa if reply else dataUserCa, xField, '1Y')
     for ax in axs.flat:
         ax.label_outer()
     # fig.suptitle(title)
@@ -262,9 +287,9 @@ def plot4(reply: bool, xField, title, name='unamed.jpg'):
     plt.savefig(name)
 
 # %% users emotion
-# plot4(False, 'monthStart', 'Emotions expressed by users from their first action', 'mstartuser.jpg')
-# plot4(True, 'monthStart', 'Emotions received by users from their first action', 'mstartreply.jpg')
-plot4(False, 'month', 'User emotion written monthEnd', 'time.jpg')
+plot4(False, 'monthStart', 'Emotions expressed by users from their first action', 'mstartuser.jpg')
+plot4(True, 'monthStart', 'Emotions received by users from their first action', 'mstartreply.jpg')
+# plot4(False, 'month', 'User emotion written monthEnd', 'time.jpg')
 
 # gender(False, 'monthStart', 'La locura')
 # roles(False, 'monthStart', 'La locura')
