@@ -28,22 +28,19 @@ class ByGender(Analyzer):
             "all": [],
             "month": [ [] for x in range(0, 250) ],
             "monthStart": [ [] for x in range(0, 250) ],
-            # "monthEnd": [ [] for x in range(0, 250) ],
+            "monthEnd": [ [] for x in range(0, 250) ],
         }
 
     @staticmethod
     def getEmptyCounter():
-        # c = {
-        #     'all': ByGender.getEmptySectionCounter(),
-        #     'male': ByGender.getEmptySectionCounter(),
-        #     'female': ByGender.getEmptySectionCounter(),
-        #     'unknown': ByGender.getEmptySectionCounter(),
-        #     'autopatrolled': ByGender.getEmptySectionCounter(),
-        #     'rollbacker': ByGender.getEmptySectionCounter(),
-        #     'sysop': ByGender.getEmptySectionCounter(),
-        # }
         c = {
-            # 'all': ByGender.getEmptySectionCounter(),
+            'all': ByGender.getEmptySectionCounter(),
+            'male': ByGender.getEmptySectionCounter(),
+            'female': ByGender.getEmptySectionCounter(),
+            'unknown': ByGender.getEmptySectionCounter(),
+            'autopatrolled': ByGender.getEmptySectionCounter(),
+            'rollbacker': ByGender.getEmptySectionCounter(),
+            'sysop': ByGender.getEmptySectionCounter(),
             'dropoff': ByGender.getEmptySectionCounter(),
             'dropoff-1Y': ByGender.getEmptySectionCounter(),
             'dropoff-2Y': ByGender.getEmptySectionCounter(),
@@ -172,25 +169,25 @@ class ByGender(Analyzer):
                 monthsEmotions[nMonth] += em
                 monthsEmotionsI[iMont] += em
 
-        # ByGender.addToSection('all', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+        ByGender.addToSection('all', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
 
         if userInfo is not None:
-            # # GENDER
-            # g =  userInfo['gender']
-            # if g == 'M':
-            #     ByGender.addToSection('male', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
-            # elif g == 'F':
-            #     ByGender.addToSection('female', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
-            # else:
-            #     ByGender.addToSection('unknown', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+            # GENDER
+            g =  userInfo['gender']
+            if g == 'M':
+                ByGender.addToSection('male', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+            elif g == 'F':
+                ByGender.addToSection('female', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+            else:
+                ByGender.addToSection('unknown', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
 
-            # # ROLES
-            # if 'autopatrolled' in userInfo['roles'] or 'autoreviewer' in userInfo['roles']:
-            #     ByGender.addToSection('autopatrolled', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
-            # if 'rollbacker' in userInfo['roles']:
-            #     ByGender.addToSection('rollbacker', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
-            # if 'sysop' in userInfo['roles']:
-            #     ByGender.addToSection('sysop', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+            # ROLES
+            if 'autopatrolled' in userInfo['roles'] or 'autoreviewer' in userInfo['roles']:
+                ByGender.addToSection('autopatrolled', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+            if 'rollbacker' in userInfo['roles']:
+                ByGender.addToSection('rollbacker', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+            if 'sysop' in userInfo['roles']:
+                ByGender.addToSection('sysop', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
 
             # EDIT COUNT
             editCount =  userInfo['editCount']
@@ -236,7 +233,7 @@ class ByGender(Analyzer):
                 toAppend = ByGender.normalize(em)
                 if toAppend is not None:
                     ByGender.counter[section]["monthStart"][i].append(toAppend)
-                    # ByGender.counter[section]["monthEnd"][( - mDiff) + i].append(toAppend)
+                    ByGender.counter[section]["monthEnd"][( - mDiff) + i].append(toAppend)
 
             for i, em in enumerate(monthsEmotionsI):
                 toAppend = ByGender.normalize(em)
@@ -267,7 +264,7 @@ class ByGender(Analyzer):
             res[section] = {
                 "all": self.getMeanVarList(ByGender.counter[section]["all"]),
                 "monthStart": [ self.getMeanVarList(x) for x in ByGender.counter[section]["monthStart"] ],
-                # "monthEnd": [ self.getMeanVarList(x) for x in ByGender.counter[section]["monthEnd"] ][::-1],
+                "monthEnd": [ self.getMeanVarList(x) for x in ByGender.counter[section]["monthEnd"] ][::-1],
                 "month": [ self.getMeanVarList(x) for x in ByGender.counter[section]["month"] ]
             }
 
