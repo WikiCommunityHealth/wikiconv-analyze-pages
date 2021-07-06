@@ -82,7 +82,7 @@ class ByGender(Analyzer):
                 currRoles = info[4].split(',')
                 ByGender.userGenderDic[id] = {
                     "gender": infoFromCsv[id][0] if id in infoFromCsv else 'U',
-                    "editCount": infoFromCsv[id][1] if id in infoFromCsv else 'U',
+                    "editCount": infoFromCsv[id][1] if id in infoFromCsv else None,
                     "isBot": info[2] == 'True',
                     "lasteEdit": datetime.strptime(info[3], "%Y-%m-%dT%H:%M:%SZ") if info[3] != 'None' else None,
                     "roles": currRoles
@@ -194,6 +194,8 @@ class ByGender(Analyzer):
 
             # EDIT COUNT
             editCount =  userInfo['editCount']
+            if editCount is None:
+                editCount = sectionCounter
             if editCount >= 10:
                 ByGender.addToSection('10', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
 
