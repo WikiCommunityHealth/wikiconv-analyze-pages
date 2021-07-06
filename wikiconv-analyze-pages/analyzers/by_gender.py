@@ -28,30 +28,37 @@ class ByGender(Analyzer):
             "all": [],
             "month": [ [] for x in range(0, 250) ],
             "monthStart": [ [] for x in range(0, 250) ],
-            "monthEnd": [ [] for x in range(0, 250) ],
+            # "monthEnd": [ [] for x in range(0, 250) ],
         }
 
     @staticmethod
     def getEmptyCounter():
+        # c = {
+        #     'all': ByGender.getEmptySectionCounter(),
+        #     'male': ByGender.getEmptySectionCounter(),
+        #     'female': ByGender.getEmptySectionCounter(),
+        #     'unknown': ByGender.getEmptySectionCounter(),
+        #     'autopatrolled': ByGender.getEmptySectionCounter(),
+        #     'rollbacker': ByGender.getEmptySectionCounter(),
+        #     'sysop': ByGender.getEmptySectionCounter(),
+        # }
         c = {
-            'all': ByGender.getEmptySectionCounter(),
-            'male': ByGender.getEmptySectionCounter(),
-            'female': ByGender.getEmptySectionCounter(),
-            'unknown': ByGender.getEmptySectionCounter(),
-            'autopatrolled': ByGender.getEmptySectionCounter(),
-            'rollbacker': ByGender.getEmptySectionCounter(),
-            'sysop': ByGender.getEmptySectionCounter(),
+            # 'all': ByGender.getEmptySectionCounter(),
+            'dropoff': ByGender.getEmptySectionCounter(),
+            'dropoff-1Y': ByGender.getEmptySectionCounter(),
+            'dropoff-2Y': ByGender.getEmptySectionCounter(),
+            '2Y': ByGender.getEmptySectionCounter(),
+            '1Y': ByGender.getEmptySectionCounter(),
+            '10': ByGender.getEmptySectionCounter(),
+            '100': ByGender.getEmptySectionCounter(),
+            '1000': ByGender.getEmptySectionCounter(),
+            '10000': ByGender.getEmptySectionCounter(),
         }
         return c
-        # c["gender"] = {
-        #     "M": ByGender.getEmptySectionCounter(),
-        #     "F": ByGender.getEmptySectionCounter(),
-        #     "U":ByGender.getEmptySectionCounter()
-        # }
 
     @staticmethod
     def loadGenderDic():
-        genders = {}
+        infoFromCsv = {}
         with open(f'./assets/genders/genders-{ByGender.lang}.tsv') as f:
             for l in f:
                 info = l.strip('\n').split('\t')
@@ -62,7 +69,8 @@ class ByGender(Analyzer):
                     g = 'M'
                 elif info[2] == 'female':
                     g = 'F'
-                genders[int(info[0])] = g
+
+                infoFromCsv[int(info[0])] = (g, int(info[3]))
 
         ByGender.roles = set()
         c = Counter()
@@ -73,7 +81,8 @@ class ByGender(Analyzer):
                 id = int(info[0])
                 currRoles = info[4].split(',')
                 ByGender.userGenderDic[id] = {
-                    "gender": genders[id] if id in genders else 'U',
+                    "gender": infoFromCsv[id][0] if id in infoFromCsv else 'U',
+                    "editCount": infoFromCsv[id][1] if id in infoFromCsv else 'U',
                     "isBot": info[2] == 'True',
                     "lasteEdit": datetime.strptime(info[3], "%Y-%m-%dT%H:%M:%SZ") if info[3] != 'None' else None,
                     "roles": currRoles
@@ -138,22 +147,20 @@ class ByGender(Analyzer):
                 return
 
         firstDate = self.getDate(currentSectionObjs[0])
+        lastDate = self.getDate(currentSectionObjs[-1])
         mDiff = self.monthDiff(
             self.getDate(currentSectionObjs[-1]),
             firstDate
         ) + 1
 
         startOfTime = datetime.strptime("2000-01-01T00:00:00Z", "%Y-%m-%dT%H:%M:%SZ")
+        endOfTime = datetime.strptime("2020-04-01T00:00:00Z", "%Y-%m-%dT%H:%M:%SZ")
         offSetMonths = self.monthDiff(firstDate, startOfTime)
+        notEditingFor = self.monthDiff(endOfTime, lastDate)
 
         userEmotions = np.array([0] * 11)
         monthsEmotions = [np.array([0] * 11)] * mDiff
         monthsEmotionsI = [np.array([0] * 11)] * (mDiff + 1)
-
-        # if currentSectionId in ByGender.userGenderDic:
-        #     # print(ByGender.userGenderDic[currentSectionId])
-        #     if (currentSectionObjs[-1]['timestamp'] > "2020-03-01T00:00:00Z"):
-        #         print(currentSectionObjs[-1]['timestamp'])
 
         for obj in currentSectionObjs:
             if obj['type'][0] == 'A' or obj['type'][0] == 'C':
@@ -165,25 +172,50 @@ class ByGender(Analyzer):
                 monthsEmotions[nMonth] += em
                 monthsEmotionsI[iMont] += em
 
-        ByGender.addToSection('all', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+        # ByGender.addToSection('all', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
 
         if userInfo is not None:
-            g =  userInfo['gender']
-            if g == 'M':
-                ByGender.addToSection('male', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
-            elif g == 'F':
-                ByGender.addToSection('female', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
-            else:
-                ByGender.addToSection('unknown', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+            # # GENDER
+            # g =  userInfo['gender']
+            # if g == 'M':
+            #     ByGender.addToSection('male', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+            # elif g == 'F':
+            #     ByGender.addToSection('female', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+            # else:
+            #     ByGender.addToSection('unknown', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
 
-            if 'autopatrolled' in userInfo['roles'] or 'autoreviewer' in userInfo['roles']:
-                ByGender.addToSection('autopatrolled', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
-            if 'rollbacker' in userInfo['roles']:
-                ByGender.addToSection('rollbacker', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
-            if 'sysop' in userInfo['roles']:
-                ByGender.addToSection('sysop', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+            # # ROLES
+            # if 'autopatrolled' in userInfo['roles'] or 'autoreviewer' in userInfo['roles']:
+            #     ByGender.addToSection('autopatrolled', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+            # if 'rollbacker' in userInfo['roles']:
+            #     ByGender.addToSection('rollbacker', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+            # if 'sysop' in userInfo['roles']:
+            #     ByGender.addToSection('sysop', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+
+            # EDIT COUNT
+            editCount =  userInfo['editCount']
+            if editCount >= 10:
+                ByGender.addToSection('10', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+
+                if notEditingFor >= 12:
+                    ByGender.addToSection('dropoff', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+                    if mDiff > 12:
+                        ByGender.addToSection('dropoff-1Y', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+                    if mDiff > 24:
+                        ByGender.addToSection('dropoff-2Y', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+
+                if mDiff > 12:
+                    ByGender.addToSection('1Y', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+                if mDiff > 24:
+                    ByGender.addToSection('2Y', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
 
 
+            if editCount >= 100:
+                ByGender.addToSection('100', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+            if editCount >= 1000:
+                ByGender.addToSection('1000', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
+            if editCount >= 10000:
+                ByGender.addToSection('10000', userEmotions, monthsEmotions, monthsEmotionsI, mDiff, offSetMonths)
 
 
     @staticmethod
@@ -202,7 +234,7 @@ class ByGender(Analyzer):
                 toAppend = ByGender.normalize(em)
                 if toAppend is not None:
                     ByGender.counter[section]["monthStart"][i].append(toAppend)
-                    ByGender.counter[section]["monthEnd"][( - mDiff) + i].append(toAppend)
+                    # ByGender.counter[section]["monthEnd"][( - mDiff) + i].append(toAppend)
 
             for i, em in enumerate(monthsEmotionsI):
                 toAppend = ByGender.normalize(em)
@@ -233,7 +265,7 @@ class ByGender(Analyzer):
             res[section] = {
                 "all": self.getMeanVarList(ByGender.counter[section]["all"]),
                 "monthStart": [ self.getMeanVarList(x) for x in ByGender.counter[section]["monthStart"] ],
-                "monthEnd": [ self.getMeanVarList(x) for x in ByGender.counter[section]["monthEnd"] ][::-1],
+                # "monthEnd": [ self.getMeanVarList(x) for x in ByGender.counter[section]["monthEnd"] ][::-1],
                 "month": [ self.getMeanVarList(x) for x in ByGender.counter[section]["month"] ]
             }
 
