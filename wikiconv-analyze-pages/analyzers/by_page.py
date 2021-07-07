@@ -57,6 +57,7 @@ class ByPage(Analyzer):
         return datetime.strptime(obj['timestamp'], "%Y-%m-%dT%H:%M:%SZ")
 
     def filterId(self, sectionId: int) -> bool:
+        print(sectionId)
         return sectionId in [ 31520850, 31776448, 31866536, 33808342, 47378300, 47818503, 48911840, 49328465 ]
 
     def finalizeSection(self, sectionCounter: int, currentSectionObjs: List[Mapping[str, Any]], currentSectionId: int) -> None:
