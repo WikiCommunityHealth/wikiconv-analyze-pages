@@ -8,6 +8,7 @@ from .month_word_cloud import MonthWordCloud
 from .minify import Minify
 from .users_info import UserInfo
 from .by_gender import ByGender
+from .by_page import ByPage
 from .analyzer import Analyzer
 
 def __getAnalyzers() -> Dict[str, Type[Analyzer]]:
@@ -20,7 +21,8 @@ def __getAnalyzers() -> Dict[str, Type[Analyzer]]:
         "month-word-cloud": MonthWordCloud,
         "minify": Minify,
         "user-info": UserInfo,
-        "by-gender": ByGender
+        "by-gender": ByGender,
+        "by-page": ByPage
     }
 
 def getAnalyzersNames() -> List[str]:
