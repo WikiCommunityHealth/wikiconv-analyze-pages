@@ -57,7 +57,6 @@ class ByPage(Analyzer):
         return datetime.strptime(obj['timestamp'], "%Y-%m-%dT%H:%M:%SZ")
 
     def filterId(self, sectionId: int) -> bool:
-        print(sectionId)
         return sectionId in [ 31520850, 31776448, 31866536, 33808342, 47378300, 47818503, 48911840, 49328465 ]
 
     def finalizeSection(self, sectionCounter: int, currentSectionObjs: List[Mapping[str, Any]], currentSectionId: int) -> None:
@@ -78,7 +77,10 @@ class ByPage(Analyzer):
                 em = np.array([int(x) for x in obj['emotions'].split(',')[0:11] ])
                 d = self.getDate(obj)
                 iMont = self.monthDiff(d, startOfTime)
-                ByPage.counter[iMont].append(ByPage.normalize(em))
+
+                x = ByPage.normalize(em)
+                if x is not None:
+                    ByPage.counter[iMont].append(ByPage.normalize(em))
 
 
     @staticmethod
