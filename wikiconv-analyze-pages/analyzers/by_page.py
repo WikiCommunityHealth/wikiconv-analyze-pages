@@ -91,7 +91,7 @@ class ByPage(Analyzer):
 
     def finalize(self) -> None:
         for i in range(0, len(ByPage.counter)):
-            ByPage.counter[i] = np.mean(ByPage.counter[i], axis=0).tolist() if ByPage.counter[i] > 0 else [0] * 11
+            ByPage.counter[i] = np.mean(ByPage.counter[i], axis=0).tolist() if len(ByPage.counter[i]) > 0 else [0] * 11
 
         with open(ByPage.file, 'w') as f:
             json.dump(ByPage.counter, f)
