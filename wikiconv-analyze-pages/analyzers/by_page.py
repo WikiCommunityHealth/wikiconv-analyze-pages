@@ -67,6 +67,8 @@ class ByPage(Analyzer):
         if currentSectionId not in [ 31520850, 31776448, 31866536, 33808342, 47378300, 47818503, 48911840, 49328465 ]:
             return
 
+        print(f"Doing {currentSectionObjs[0]['pageTitle']}")
+
         startOfTime = datetime.strptime("2000-01-01T00:00:00Z", "%Y-%m-%dT%H:%M:%SZ")
 
 
